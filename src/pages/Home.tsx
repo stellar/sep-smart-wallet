@@ -1,6 +1,6 @@
 import { Heading } from "@stellar/design-system";
-import { RouterLink } from "../components/RouterLink";
-import { Box } from "../components/layout/Box";
+import { Box } from "@/components/layout/Box";
+import { RouterLink } from "@/components/RouterLink";
 
 export const Home = () => {
   return (

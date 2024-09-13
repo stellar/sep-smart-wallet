@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, Heading } from "@stellar/design-system";
-
-import { Box } from "../components/layout/Box";
-import { useStellarAccount } from "../query/useStellarAcount";
-import { NETWORK_URL } from "../config/settings";
+import { useStellarAccount } from "@/query/useStellarAcount";
+import { Box } from "@/components/layout/Box";
+import { NETWORK_URL } from "@/config/settings";
 
 const PUBLIC_KEY = "GAMQTINWD3YPP3GLTQZ4M6FKCCSRGROQLIIRVECIFC6VEGL5F64CND22";
 // const PUBLIC_KEY = "GDB7YEJN44SX76U43ZWXZUBEENCHOARNN6HCNTCWOZHAS73LKVJ6GNJH";
@@ -77,7 +76,10 @@ export const SecondPage = () => {
           onClick={() => {
             resetFetchAccount();
           }}
-          disabled={isFetchAccountPending}
+          disabled={
+            isFetchAccountPending ||
+            !(fetchAccountResponse || fetchAccountError)
+          }
         >
           Clear
         </Button>

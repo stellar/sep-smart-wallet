@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // Route pages
-import { App } from "./App";
-import { Home } from "./pages/Home";
-import { SecondPage } from "./pages/SecondPage";
+import { App } from "@/App";
+import { Home } from "@/pages/Home";
+import { SecondPage } from "@/pages/SecondPage";
 
 // Styles
 import "@stellar/design-system/build/styles.min.css";

@@ -1,6 +1,6 @@
 import { Layout } from "@stellar/design-system";
 import { Outlet } from "react-router-dom";
-import { QueryProvider } from "./query/QueryProvider";
+import { QueryProvider } from "@/query/QueryProvider";
 
 const PROJECT_ID = "project-template";
 const PROJECT_TITLE = "Project";
