@@ -25,26 +25,18 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
 
   const renderResponse = () => {
     if (fetchContractBalanceResponse) {
-      const balanceBigInt = scValToBigInt(
-        fetchContractBalanceResponse.returnValue!,
-      );
+      const balanceBigInt = scValToBigInt(fetchContractBalanceResponse.returnValue!);
       const balanceStr = formatBigIntWithDecimals(balanceBigInt, 7);
       return (
-        <Alert
-          variant="success"
-          placement="inline"
-          title="Success"
-        >{`Balance: ${balanceStr} ${tokenName}`}</Alert>
+        <Alert variant="success" placement="inline" title="Success">{`Balance: ${balanceStr} ${tokenName}`}</Alert>
       );
     }
 
     if (fetchContractBalanceError) {
       return (
-        <Alert
-          variant="error"
-          placement="inline"
-          title="Error"
-        >{`Error invoking token balance: ${fetchContractBalanceError}`}</Alert>
+        <Alert variant="error" placement="inline" title="Error">{`Error invoking token balance: ${JSON.stringify(
+          fetchContractBalanceError,
+        )}`}</Alert>
       );
     }
 
@@ -73,10 +65,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={() => {
             resetFetchContractBalance();
           }}
-          disabled={
-            isFetchContractBalancePending ||
-            !(fetchContractBalanceResponse || fetchContractBalanceError)
-          }
+          disabled={isFetchContractBalancePending || !(fetchContractBalanceResponse || fetchContractBalanceError)}
         >
           Clear
         </Button>
