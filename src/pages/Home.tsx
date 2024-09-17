@@ -2,7 +2,7 @@ import { Heading } from "@stellar/design-system";
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
 import { ACCOUNT_A_PUBLIC_KEY, NATIVE_CONTRACT_ID } from "@/config/settings";
-import { AccountBalance } from "@/components/accountBalance";
+import { AccountBalance } from "@/components/AccountBalance";
 
 type TokenInfo = {
   name: string;
@@ -24,11 +24,7 @@ export const Home = () => {
       <Heading size="md" as="h3">
         XLM Balance
       </Heading>
-      <AccountBalance
-        accountId={accountId}
-        contractId={tokenInfo.contractId}
-        tokenName={tokenInfo.name}
-      />
+      <AccountBalance accountId={accountId} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} />
       <RouterLink to="/second" variant="primary">
         Go to Second page
       </RouterLink>
