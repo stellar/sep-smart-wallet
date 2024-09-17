@@ -12,7 +12,6 @@ import {
   SorobanRpc,
   TimeoutInfinite,
   TransactionBuilder,
-  xdr,
 } from "@stellar/stellar-sdk";
 import { ERRORS } from "@/helpers/errors";
 
@@ -22,7 +21,7 @@ type TokenBalanceProps = {
 };
 
 export const useContractBalance = () => {
-  const mutation = useMutation<xdr.TransactionResult, Error, TokenBalanceProps>(
+  const mutation = useMutation<SorobanRpc.Api.GetSuccessfulTransactionResponse, Error, TokenBalanceProps>(
     {
       mutationFn: async ({ accountId, contractId }: TokenBalanceProps) => {
         const sorobanClient = getSorobanClient(SOROBAN_RPC_URL);
@@ -64,15 +63,17 @@ export const useContractBalance = () => {
         let txResponse = await sorobanClient.getTransaction(sendResponse.hash);
 
         // Poll this until the status is not "NOT_FOUND"
+
         while (
           txResponse.status === SorobanRpc.Api.GetTransactionStatus.NOT_FOUND
         ) {
           txResponse = await sorobanClient.getTransaction(sendResponse.hash);
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
 
         if (txResponse.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
-          return txResponse.resultXdr;
+          txResponse.resultMetaXdr
+          return txResponse;
         }
 
         throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${txResponse}`);

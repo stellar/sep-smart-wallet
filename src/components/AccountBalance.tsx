@@ -1,15 +1,19 @@
 import { Alert, Button } from "@stellar/design-system";
 import { Box } from "@/components/layout/Box";
 import { useContractBalance } from "@/query/useContractBalance";
+import { scValToBigInt } from "@stellar/stellar-sdk";
+import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 
 interface AccountBalanceProps {
   accountId: string;
   contractId: string;
+  tokenName: string;
 }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   accountId,
   contractId,
+  tokenName,
 }: AccountBalanceProps) => {
   const {
     data: fetchContractBalanceResponse,
@@ -21,16 +25,16 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
 
   const renderResponse = () => {
     if (fetchContractBalanceResponse) {
-      console.log(
-        "fetchContractBalanceResponse: ",
-        fetchContractBalanceResponse,
+      const balanceBigInt = scValToBigInt(
+        fetchContractBalanceResponse.returnValue!,
       );
+      const balanceStr = formatBigIntWithDecimals(balanceBigInt, 7);
       return (
         <Alert
           variant="success"
           placement="inline"
           title="Success"
-        >{`Account ${accountId} data fetched`}</Alert>
+        >{`Balance: ${balanceStr} ${tokenName}`}</Alert>
       );
     }
 
@@ -40,7 +44,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           variant="error"
           placement="inline"
           title="Error"
-        >{`Error fetching account ${accountId}: ${fetchContractBalanceError}`}</Alert>
+        >{`Error invoking token balance: ${fetchContractBalanceError}`}</Alert>
       );
     }
 
@@ -61,7 +65,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           }}
           isLoading={isFetchContractBalancePending}
         >
-          Fetch account
+          Invoke token balance
         </Button>
         <Button
           size="md"
