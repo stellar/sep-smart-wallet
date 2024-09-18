@@ -1,4 +1,4 @@
-import { XdrLargeInt, SorobanRpc } from "@stellar/stellar-sdk";
+import { XdrLargeInt } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
 import { SvConvert } from "@/helpers/SvConvert";
@@ -14,7 +14,7 @@ type TokenTransferProps = {
 };
 
 export const useTransfer = () => {
-  const mutation = useMutation<SorobanRpc.Api.GetSuccessfulTransactionResponse, Error, TokenTransferProps>({
+  const mutation = useMutation<bigint, Error, TokenTransferProps>({
     mutationFn: async ({ contractId, fromAccId, toAccId, amount, signer }: TokenTransferProps) => {
       const scFrom = SvConvert.accountIdToScVal(fromAccId);
       const scTo = SvConvert.accountIdToScVal(toAccId);
@@ -26,14 +26,22 @@ export const useTransfer = () => {
       }
 
       const ss = new SorobanService();
-      return await ss
-        .simulateContract({
-          contractId,
-          method: "transfer",
-          args: [scFrom, scTo, scAmount],
-          signers,
-        })
-        .then(({ tx, simulationResponse }) => ss.callContract({ tx, simulationResponse }));
+      let { tx, simulationResponse: transferSimulation } = await ss.simulateContract({
+        contractId,
+        method: "transfer",
+        args: [scFrom, scTo, scAmount],
+        signers,
+      });
+
+      await ss.callContract({ tx, simulationResponse: transferSimulation });
+
+      const { simulationResponse: balanceSimulation } = await ss.simulateContract({
+        contractId,
+        method: "balance",
+        args: [SvConvert.accountIdToScVal(fromAccId)],
+      });
+
+      return SvConvert.scValToBigInt(balanceSimulation.result!.retval);
     },
   });
 

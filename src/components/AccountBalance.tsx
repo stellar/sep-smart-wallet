@@ -42,11 +42,18 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     if (fetchBalanceError) {
       console.log(fetchTransferResponse);
     }
+
+    const title = fetchBalanceResponse
+      ? "Successfully fetched balance"
+      : fetchTransferResponse
+      ? "Successfully transferred 1.0 XLM"
+      : null;
+    const balance = fetchBalanceResponse || fetchTransferResponse;
     return (
       <>
-        {fetchBalanceResponse ? (
-          <Alert variant="success" placement="inline" title="Success">{`Balance: ${formatBigIntWithDecimals(
-            scValToBigInt(fetchBalanceResponse.simulationResponse.result!.retval),
+        {balance && title ? (
+          <Alert variant="success" placement="inline" title={title}>{`Balance: ${formatBigIntWithDecimals(
+            balance,
             7,
           )} ${tokenName}`}</Alert>
         ) : null}
@@ -55,12 +62,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           <Alert variant="error" placement="inline" title="Error">{`Error invoking token balance: ${JSON.stringify(
             fetchBalanceError,
           )}`}</Alert>
-        ) : null}
-
-        {fetchTransferResponse ? (
-          <Alert variant="success" placement="inline" title="Success">
-            Transfer successful
-          </Alert>
         ) : null}
 
         {fetchTransferError ? (
