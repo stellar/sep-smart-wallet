@@ -1,18 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
-import { SorobanRpc } from "@stellar/stellar-sdk";
 
 import { SvConvert } from "@/helpers/SvConvert";
-import { callContract } from "@/helpers/callContract";
+import { simulateContract } from "@/helpers/callContract";
+import { SimulationResult } from "@/types/types";
 
 type TokenBalanceProps = {
+  sourceAccPubKey: string;
   accountId: string;
   contractId: string;
 };
 
 export const useContractBalance = () => {
-  const mutation = useMutation<SorobanRpc.Api.GetSuccessfulTransactionResponse, Error, TokenBalanceProps>({
-    mutationFn: async ({ accountId, contractId }: TokenBalanceProps) => {
-      return await callContract({
+  const mutation = useMutation<SimulationResult, Error, TokenBalanceProps>({
+    mutationFn: async ({ sourceAccPubKey, accountId, contractId }: TokenBalanceProps) => {
+      return await simulateContract({
+        sourceAccPubKey,
         contractId,
         method: "balance",
         args: [SvConvert.accountIdToScVal(accountId)],

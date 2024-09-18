@@ -1,8 +1,13 @@
-import { Keypair, SigningCallback, xdr } from "@stellar/stellar-sdk";
+import { Keypair, SigningCallback, SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
 
 export type ContractSigner = {
   addressId: string;
   method: Keypair | SigningCallback;
+};
+
+export type SimulationResult = {
+  tx: Transaction;
+  simulationResponse: SorobanRpc.Api.SimulateTransactionSuccessResponse;
 };
 
 export type SorobanEntryAddress = {

@@ -2,23 +2,25 @@ import { Alert, Button } from "@stellar/design-system";
 import { Keypair, scValToBigInt } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
-import { ACCOUNT_A_PRIVATE_KEY, SOURCE_ACCOUNT_PUBLIC_KEY } from "@/config/settings";
+import { SOURCE_ACCOUNT_PUBLIC_KEY, SOURCE_ACCOUNT_SECRET_KEY } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useContractBalance } from "@/query/useContractBalance";
 import { useTransfer } from "@/query/useTransfer";
 
 interface AccountBalanceProps {
-  accountId: string;
+  accountKP: Keypair;
   contractId: string;
   tokenName: string;
 }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
-  accountId,
+  accountKP,
   contractId,
   tokenName,
 }: AccountBalanceProps) => {
+  const sourceAccKP = Keypair.fromSecret(SOURCE_ACCOUNT_SECRET_KEY);
+
   const {
     data: fetchContractBalanceResponse,
     mutate: fetchContractBalance,
@@ -46,7 +48,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
       <>
         {fetchContractBalanceResponse ? (
           <Alert variant="success" placement="inline" title="Success">{`Balance: ${formatBigIntWithDecimals(
-            scValToBigInt(fetchContractBalanceResponse.returnValue!),
+            scValToBigInt(fetchContractBalanceResponse.simulationResponse.result!.retval),
             7,
           )} ${tokenName}`}</Alert>
         ) : null}
@@ -84,7 +86,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={() => {
             resetFetchTransfer();
             fetchContractBalance({
-              accountId,
+              sourceAccPubKey: sourceAccKP.publicKey(),
+              accountId: accountKP.publicKey(),
               contractId,
             });
           }}
@@ -98,13 +101,14 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={() => {
             resetFetchContractBalance();
             fetchTransfer({
+              kp: sourceAccKP,
               contractId,
-              fromAccId: accountId,
-              toAccId: SOURCE_ACCOUNT_PUBLIC_KEY,
+              fromAccId: accountKP.publicKey(),
+              toAccId: toAcc,
               amount: "10000000",
               signer: {
-                addressId: accountId,
-                method: Keypair.fromSecret(ACCOUNT_A_PRIVATE_KEY),
+                addressId: accountKP.publicKey(),
+                method: accountKP,
               },
             });
           }}

@@ -11,13 +11,14 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 
-import { NETWORK_PASSPHRASE, SOROBAN_RPC_URL, SOURCE_ACCOUNT_SECRET_KEY } from "@/config/settings";
+import { NETWORK_PASSPHRASE, SOROBAN_RPC_URL } from "@/config/settings";
 import { ERRORS } from "@/helpers/errors";
 import { getSorobanClient } from "@/helpers/soroban";
-import { ContractSigner } from "@/types/types";
+import { ContractSigner, SimulationResult } from "@/types/types";
 import { SvConvert } from "./SvConvert";
 
-type ContractArgs = {
+type SimulateContract = {
+  sourceAccPubKey: string;
   contractId: string;
   method: string;
   args: xdr.ScVal[];
@@ -25,26 +26,27 @@ type ContractArgs = {
 };
 
 /**
- * Calls a Soroban contract method.
+ * Simulate the execution of a Soroban contract method.
  *
+ * @param sourceAccPubKey - The public key of the transacton source account.
  * @param contractId - The ID of the Soroban contract.
  * @param method - The method to call on the contract.
  * @param args - The arguments to pass to the method.
  * @param signers - The signers that will sign the contract call entries.
- * @returns A Promise that resolves to the transaction response.
+ * @returns A Promise that resolves to the transaction and simulation response.
  * @throws An error if the transaction fails.
  */
-export const callContract = async ({
+export const simulateContract = async ({
+  sourceAccPubKey,
   contractId,
   method,
   args,
   signers,
-}: ContractArgs): Promise<SorobanRpc.Api.GetSuccessfulTransactionResponse> => {
-  const kp = Keypair.fromSecret(SOURCE_ACCOUNT_SECRET_KEY);
+}: SimulateContract): Promise<SimulationResult> => {
   const rpcClient = getSorobanClient(SOROBAN_RPC_URL);
 
   // Fetch source account
-  const sourceAcc = await rpcClient.getAccount(kp.publicKey());
+  const sourceAcc = await rpcClient.getAccount(sourceAccPubKey);
 
   // Initialize the contract
   const tokenContract = new Contract(contractId);
@@ -58,13 +60,13 @@ export const callContract = async ({
     .build();
 
   // Simulate the transaction
-  let sim = (await rpcClient.simulateTransaction(tx)) as SorobanRpc.Api.SimulateTransactionSuccessResponse;
-  if (!SorobanRpc.Api.isSimulationSuccess(sim)) {
-    throw new Error(`${ERRORS.TX_SIM_FAILED}: ${sim}`);
+  let simulationResponse = await rpcClient.simulateTransaction(tx);
+  if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
+    throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`);
   }
 
   // Extract the Soroban authorization entry from the simulation
-  let authEntries: xdr.SorobanAuthorizationEntry[] = sim.result?.auth ?? [];
+  let authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? [];
   if (authEntries.length === 0) {
     console.log("No SorobanAuthorizationEntry found in the simulation response.");
   }
@@ -82,16 +84,41 @@ export const callContract = async ({
     });
 
     // Simulate the transaction again, after signing, to ensure the signatures are valid and to get the updated fees
-    sim = (await rpcClient.simulateTransaction(tx)) as SorobanRpc.Api.SimulateTransactionSuccessResponse;
-    if (!SorobanRpc.Api.isSimulationSuccess(sim)) {
-      throw new Error(`${ERRORS.TX_SIM_FAILED}: ${sim}`);
+    simulationResponse = (await rpcClient.simulateTransaction(tx)) as SorobanRpc.Api.SimulateTransactionSuccessResponse;
+    if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
+      throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`);
     }
   } else {
     console.log(`no signer was provided to sign contract call for method: ${method}`);
   }
 
+  return { tx, simulationResponse };
+};
+
+type CallContract = {
+  tx: Transaction;
+  simulationResponse: SorobanRpc.Api.SimulateTransactionSuccessResponse;
+  kp: Keypair;
+};
+
+/**
+ * Calls a Soroban contract method.
+ *
+ * @param tx - The transaction to submit.
+ * @param simulationResponse - The simulation response for the transaction.
+ * @param kp - The keypair of the Transaction source account.
+ * @returns A Promise that resolves to the transaction response.
+ * @throws An error if the transaction fails.
+ */
+export const callContract = async ({
+  tx,
+  simulationResponse,
+  kp,
+}: CallContract): Promise<SorobanRpc.Api.GetSuccessfulTransactionResponse> => {
+  const rpcClient = getSorobanClient(SOROBAN_RPC_URL);
+
   // Assemble, build and sign the transaction
-  const preparedTransaction = SorobanRpc.assembleTransaction(tx, sim);
+  const preparedTransaction = SorobanRpc.assembleTransaction(tx, simulationResponse);
   tx = preparedTransaction.build();
   tx.sign(kp);
 
@@ -246,74 +273,3 @@ export const signAuthEntries = async ({
 
   return tx;
 };
-
-// export const signAuthEntry = (
-//   entry: xdr.SorobanAuthorizationEntry,
-//   options?: {
-//     keyId?: "any" | string | Uint8Array;
-//     rpId?: string;
-//     ledgersToLive?: number;
-//   },
-// ): Promise<xdr.SorobanAuthorizationEntry> => {
-//   let { keyId, rpId, ledgersToLive = DEFAULT_TIMEOUT } = options || {};
-
-//   const lastLedger = await this.rpc.getLatestLedger().then(({ sequence }) => sequence);
-//   const credentials = entry.credentials().address();
-//   const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-//     new xdr.HashIdPreimageSorobanAuthorization({
-//       networkId: hash(Buffer.from(this.networkPassphrase)),
-//       nonce: credentials.nonce(),
-//       signatureExpirationLedger: lastLedger + ledgersToLive,
-//       invocation: entry.rootInvocation(),
-//     }),
-//   );
-//   const payload = hash(preimage.toXDR());
-
-//   const authenticationResponse = await this.WebAuthn.startAuthentication(
-//     keyId === "any" || (!keyId && !this.keyId)
-//       ? {
-//           challenge: base64url(payload),
-//           rpId,
-//           // userVerification: "discouraged",
-//           // timeout: 120_000
-//         }
-//       : {
-//           challenge: base64url(payload),
-//           rpId,
-//           allowCredentials: [
-//             {
-//               id: keyId instanceof Uint8Array ? base64url(Buffer.from(keyId)) : keyId || this.keyId!,
-//               type: "public-key",
-//             },
-//           ],
-//           // userVerification: "discouraged",
-//           // timeout: 120_000
-//         },
-//   );
-
-//   const signature = this.compactSignature(base64url.toBuffer(authenticationResponse.response.signature));
-
-//   credentials.signatureExpirationLedger(lastLedger + ledgersToLive);
-//   credentials.signature(
-//     xdr.ScVal.scvMap([
-//       new xdr.ScMapEntry({
-//         key: xdr.ScVal.scvSymbol("authenticator_data"),
-//         val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.response.authenticatorData)),
-//       }),
-//       new xdr.ScMapEntry({
-//         key: xdr.ScVal.scvSymbol("client_data_json"),
-//         val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.response.clientDataJSON)),
-//       }),
-//       new xdr.ScMapEntry({
-//         key: xdr.ScVal.scvSymbol("id"),
-//         val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.id)),
-//       }),
-//       new xdr.ScMapEntry({
-//         key: xdr.ScVal.scvSymbol("signature"),
-//         val: xdr.ScVal.scvBytes(signature),
-//       }),
-//     ]),
-//   );
-
-//   return entry;
-// };
