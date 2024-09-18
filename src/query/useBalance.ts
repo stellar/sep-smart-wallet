@@ -9,7 +9,7 @@ type TokenBalanceProps = {
   contractId: string;
 };
 
-export const useContractBalance = () => {
+export const useBalance = () => {
   const mutation = useMutation<SimulationResult, Error, TokenBalanceProps>({
     mutationFn: async ({ accountId, contractId }: TokenBalanceProps) => {
       const ss = new SorobanService();

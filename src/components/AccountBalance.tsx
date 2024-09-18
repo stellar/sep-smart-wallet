@@ -5,7 +5,7 @@ import { Box } from "@/components/layout/Box";
 import { SOURCE_ACCOUNT_PUBLIC_KEY } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
-import { useContractBalance } from "@/query/useContractBalance";
+import { useBalance } from "@/query/useBalance";
 import { useTransfer } from "@/query/useTransfer";
 
 interface AccountBalanceProps {
@@ -20,12 +20,12 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   tokenName,
 }: AccountBalanceProps) => {
   const {
-    data: fetchContractBalanceResponse,
-    mutate: fetchContractBalance,
-    error: fetchContractBalanceError,
-    isPending: isFetchContractBalancePending,
-    reset: resetFetchContractBalance,
-  } = useContractBalance();
+    data: fetchBalanceResponse,
+    mutate: fetchBalance,
+    error: fetchBalanceError,
+    isPending: isFetchBalancePending,
+    reset: resetFetchBalance,
+  } = useBalance();
 
   const {
     data: fetchTransferResponse,
@@ -39,21 +39,21 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     if (fetchTransferError) {
       console.log(fetchTransferError);
     }
-    if (fetchContractBalanceError) {
+    if (fetchBalanceError) {
       console.log(fetchTransferResponse);
     }
     return (
       <>
-        {fetchContractBalanceResponse ? (
+        {fetchBalanceResponse ? (
           <Alert variant="success" placement="inline" title="Success">{`Balance: ${formatBigIntWithDecimals(
-            scValToBigInt(fetchContractBalanceResponse.simulationResponse.result!.retval),
+            scValToBigInt(fetchBalanceResponse.simulationResponse.result!.retval),
             7,
           )} ${tokenName}`}</Alert>
         ) : null}
 
-        {fetchContractBalanceError ? (
+        {fetchBalanceError ? (
           <Alert variant="error" placement="inline" title="Error">{`Error invoking token balance: ${JSON.stringify(
-            fetchContractBalanceError,
+            fetchBalanceError,
           )}`}</Alert>
         ) : null}
 
@@ -83,12 +83,13 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           variant="secondary"
           onClick={() => {
             resetFetchTransfer();
-            fetchContractBalance({
+            fetchBalance({
               accountId: accountKP.publicKey(),
               contractId,
             });
           }}
-          isLoading={isFetchContractBalancePending || isFetchTransferPending}
+          isLoading={isFetchBalancePending}
+          disabled={isFetchTransferPending}
         >
           Invoke token balance
         </Button>
@@ -96,7 +97,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           size="md"
           variant="secondary"
           onClick={() => {
-            resetFetchContractBalance();
+            resetFetchBalance();
             fetchTransfer({
               contractId,
               fromAccId: accountKP.publicKey(),
@@ -108,7 +109,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
               },
             });
           }}
-          isLoading={isFetchContractBalancePending || isFetchTransferPending}
+          isLoading={isFetchTransferPending}
+          disabled={isFetchBalancePending}
         >
           Transfer 1.0 to {toAccTruncated}
         </Button>
@@ -116,14 +118,13 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           size="md"
           variant="tertiary"
           onClick={() => {
-            resetFetchContractBalance();
+            resetFetchBalance();
             resetFetchTransfer();
           }}
           disabled={
-            isFetchContractBalancePending ||
+            isFetchBalancePending ||
             isFetchTransferPending ||
-            !(fetchContractBalanceResponse || fetchContractBalanceError) ||
-            !(fetchTransferResponse || fetchTransferError)
+            (!(fetchBalanceResponse || fetchBalanceError) && !(fetchTransferResponse || fetchTransferError))
           }
         >
           Clear
