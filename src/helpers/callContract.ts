@@ -5,7 +5,6 @@ import {
   Keypair,
   Operation,
   SorobanRpc,
-  StrKey,
   TimeoutInfinite,
   Transaction,
   TransactionBuilder,
@@ -22,14 +21,24 @@ type ContractArgs = {
   contractId: string;
   method: string;
   args: xdr.ScVal[];
-  signer?: ContractSigner;
+  signers?: ContractSigner[];
 };
 
+/**
+ * Calls a Soroban contract method.
+ *
+ * @param contractId - The ID of the Soroban contract.
+ * @param method - The method to call on the contract.
+ * @param args - The arguments to pass to the method.
+ * @param signers - The signers that will sign the contract call entries.
+ * @returns A Promise that resolves to the transaction response.
+ * @throws An error if the transaction fails.
+ */
 export const callContract = async ({
   contractId,
   method,
   args,
-  signer,
+  signers,
 }: ContractArgs): Promise<SorobanRpc.Api.GetSuccessfulTransactionResponse> => {
   const kp = Keypair.fromSecret(SOURCE_ACCOUNT_SECRET_KEY);
   const rpcClient = getSorobanClient(SOROBAN_RPC_URL);
@@ -61,11 +70,11 @@ export const callContract = async ({
   }
 
   // Use the signer, if provided, to sign slice of SorobanAuthorizationEntry
-  if (signer) {
+  if (signers && signers.length > 0) {
     console.log("Custom signer detected. Signing with custom signer.");
-    tx = await updateTxWithSignatures({
+    tx = await signAuthEntries({
       authEntries,
-      signer,
+      signers,
       networkPassphrase: NETWORK_PASSPHRASE,
       contractId,
       rpcClient,
@@ -115,6 +124,17 @@ type SignAuthEntry = {
   signer: ContractSigner;
 };
 
+/**
+ * Signs an authorization entry for a Soroban contract.
+ *
+ * @param rpcClient - The Soroban RPC client used to interact with the network.
+ * @param networkPassphrase - The Stellar network passphrase.
+ * @param contractId - The ID of the Soroban contract.
+ * @param entry - The authorization entry to sign.
+ * @param signer - The signer of the entry.
+ * @returns A Promise that resolves to the signed Soroban authorization entry.
+ * @throws An error if the signer is not authorized to sign the entry or if there is an error authorizing the entry.
+ */
 export const signAuthEntry = async ({
   rpcClient,
   networkPassphrase,
@@ -160,35 +180,56 @@ export const signAuthEntry = async ({
   }
 };
 
-type UpdateTxWithSignaturesProps = {
+type SignAuthEntries = {
   rpcClient: SorobanRpc.Server;
   networkPassphrase: string;
   contractId: string;
   authEntries: xdr.SorobanAuthorizationEntry[];
   tx: Transaction;
-  signer: ContractSigner;
+  signers: ContractSigner[];
 };
 
-export const updateTxWithSignatures = async ({
+/**
+ * Signs the authorization entries for a Soroban transaction.
+ *
+ * @param rpcClient - The Soroban RPC client used to interact with the network.
+ * @param networkPassphrase - The Stellar network passphrase.
+ * @param contractId - The ID of the Soroban contract.
+ * @param authEntries - The authorization entries to sign.
+ * @param tx - The Stellar transaction that will be updated with the signed entries.
+ * @param signers - The signers that will sign the entries.
+ * @returns A Promise that resolves to the signed transaction.
+ */
+export const signAuthEntries = async ({
   rpcClient,
   networkPassphrase,
   contractId,
   authEntries,
   tx,
-  signer,
-}: UpdateTxWithSignaturesProps): Promise<Transaction> => {
+  signers,
+}: SignAuthEntries): Promise<Transaction> => {
   let signedEntries: xdr.SorobanAuthorizationEntry[] = [];
 
-  for (let entry of authEntries) {
-    signedEntries.push(
-      await signAuthEntry({
-        entry,
-        signer,
-        networkPassphrase: networkPassphrase,
-        contractId,
-        rpcClient,
-      }),
-    );
+  // Create a Map to index signers by their addressId
+  const signerMap = new Map<string, ContractSigner>();
+  for (const signer of signers) {
+    signerMap.set(signer.addressId, signer);
+  }
+
+  for (const entry of authEntries) {
+    const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
+    const signer = signerMap.get(entryAddress.id);
+    if (signer) {
+      signedEntries.push(
+        await signAuthEntry({
+          entry,
+          signer,
+          networkPassphrase: networkPassphrase,
+          contractId,
+          rpcClient,
+        }),
+      );
+    }
   }
 
   // Soroban transaction can only have 1 operation

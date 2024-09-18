@@ -20,11 +20,16 @@ export const useTransfer = () => {
       const scTo = SvConvert.accountIdToScVal(toAccId);
       const scAmount = new XdrLargeInt("i128", amount).toScVal();
 
+      let signers: ContractSigner[] = [];
+      if (signer) {
+        signers.push(signer);
+      }
+
       return await callContract({
         contractId,
         method: "transfer",
         args: [scFrom, scTo, scAmount],
-        signer,
+        signers,
       });
     },
   });
