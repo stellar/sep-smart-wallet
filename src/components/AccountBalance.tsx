@@ -1,5 +1,4 @@
 import { Alert, Button } from "@stellar/design-system";
-import { Keypair, scValToBigInt } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
 import { SOURCE_ACCOUNT_PUBLIC_KEY } from "@/config/settings";
@@ -7,15 +6,16 @@ import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useBalance } from "@/query/useBalance";
 import { useTransfer } from "@/query/useTransfer";
+import { ContractSigner } from "@/types/types";
 
 interface AccountBalanceProps {
-  accountKP: Keypair;
+  accountSigner: ContractSigner;
   contractId: string;
   tokenName: string;
 }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
-  accountKP,
+  accountSigner,
   contractId,
   tokenName,
 }: AccountBalanceProps) => {
@@ -43,15 +43,16 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
       console.log(fetchTransferResponse);
     }
 
-    const title = fetchBalanceResponse
-      ? "Successfully fetched balance"
-      : fetchTransferResponse
-      ? "Successfully transferred 1.0 XLM"
-      : null;
-    const balance = fetchBalanceResponse || fetchTransferResponse;
+    const title =
+      fetchBalanceResponse !== undefined
+        ? "Successfully fetched balance"
+        : fetchTransferResponse !== undefined
+        ? "Successfully transferred 1.0 XLM"
+        : null;
+    const balance = fetchBalanceResponse !== undefined ? fetchBalanceResponse : fetchTransferResponse;
     return (
       <>
-        {balance && title ? (
+        {balance !== undefined && title !== undefined ? (
           <Alert variant="success" placement="inline" title={title}>{`Balance: ${formatBigIntWithDecimals(
             balance,
             7,
@@ -75,6 +76,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
 
   const toAcc = SOURCE_ACCOUNT_PUBLIC_KEY;
   const toAccTruncated = truncateStr(toAcc, 4);
+  const amount: number = 1;
+  const stroopsAmount = BigInt(amount) * BigInt(10 ** 7);
 
   return (
     <Box gap="lg">
@@ -85,7 +88,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={() => {
             resetFetchTransfer();
             fetchBalance({
-              accountId: accountKP.publicKey(),
+              accountId: accountSigner.addressId,
               contractId,
             });
           }}
@@ -101,19 +104,16 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
             resetFetchBalance();
             fetchTransfer({
               contractId,
-              fromAccId: accountKP.publicKey(),
+              fromAccId: accountSigner.addressId,
               toAccId: toAcc,
-              amount: "10000000",
-              signer: {
-                addressId: accountKP.publicKey(),
-                method: accountKP,
-              },
+              amount: stroopsAmount.toString(),
+              signer: accountSigner,
             });
           }}
           isLoading={isFetchTransferPending}
           disabled={isFetchBalancePending}
         >
-          Transfer 1.0 to {toAccTruncated}
+          Transfer {amount} to {toAccTruncated}
         </Button>
         <Button
           size="md"
