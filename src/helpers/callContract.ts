@@ -16,6 +16,7 @@ import { NETWORK_PASSPHRASE, SOROBAN_RPC_URL, SOURCE_ACCOUNT_SECRET_KEY } from "
 import { ERRORS } from "@/helpers/errors";
 import { getSorobanClient } from "@/helpers/soroban";
 import { ContractSigner } from "@/types/types";
+import { SvConvert } from "./SvConvert";
 
 type ContractArgs = {
   contractId: string;
@@ -126,10 +127,10 @@ export const signAuthEntry = async ({
     return entry;
   }
 
-  // TODO: allow non ed25519 signers
-  const entryAddress = entry.credentials().address().address().accountId();
-  if (signer.addressId !== StrKey.encodeEd25519PublicKey(entryAddress.ed25519())) {
-    throw new Error(ERRORS.INVALID_SIGNER);
+  // Ensure the signer is authorized to sign the entry
+  const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
+  if (signer.addressId !== entryAddress.id) {
+    throw new Error(`${ERRORS.INVALID_SIGNER}: ${signer}`);
   }
 
   // Construct the ledger key
