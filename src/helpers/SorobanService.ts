@@ -81,7 +81,7 @@ export class SorobanService {
     // Simulate the transaction
     let simulationResponse = await this.rpcClient.simulateTransaction(tx);
     if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
-      throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`);
+      throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 1): ${simulationResponse}`);
     }
 
     // Extract the Soroban authorization entry from the simulation
@@ -105,7 +105,7 @@ export class SorobanService {
         tx,
       )) as SorobanRpc.Api.SimulateTransactionSuccessResponse;
       if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
-        throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`);
+        throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 2): ${simulationResponse}`);
       }
     }
 

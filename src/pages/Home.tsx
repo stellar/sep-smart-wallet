@@ -4,7 +4,7 @@ import { Keypair } from "@stellar/stellar-sdk";
 import { AccountBalance } from "@/components/AccountBalance";
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
-import { G_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
+import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
 import { ContractSigner } from "@/types/types";
 
 type TokenInfo = {
@@ -19,8 +19,8 @@ export const Home = () => {
   };
 
   const accountSigner: ContractSigner = {
-    addressId: G_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
-    method: Keypair.fromSecret(G_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
+    addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
+    method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
   };
 
   // const b32 = Keypair.fromPublicKey("GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5")
