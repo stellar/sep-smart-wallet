@@ -30,29 +30,123 @@ export class SorobanService {
     this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY);
   }
 
-  withSorobanRpcURL(sorobanRpcUrl: string): SorobanService {
+  public withSorobanRpcURL(sorobanRpcUrl: string): SorobanService {
     this.rpcClient = getSorobanClient(sorobanRpcUrl);
     return this;
   }
 
-  withNetworkPassphrase(networkPassphrase: string): SorobanService {
+  public withNetworkPassphrase(networkPassphrase: string): SorobanService {
     this.networkPassphrase = networkPassphrase;
     return this;
   }
 
-  withTimeoutInSeconds(timeoutInSeconds: number): SorobanService {
+  public withTimeoutInSeconds(timeoutInSeconds: number): SorobanService {
     this.timeoutInSeconds = timeoutInSeconds;
     return this;
   }
 
-  withFee(fee: string): SorobanService {
+  public withFee(fee: string): SorobanService {
     this.fee = fee;
     return this;
   }
 
-  withSourceAccountKP(sourceAccountKP: Keypair): SorobanService {
+  public withSourceAccountKP(sourceAccountKP: Keypair): SorobanService {
     this.sourceAccountKP = sourceAccountKP;
     return this;
+  }
+
+  /**
+   * Signs an authorization entry for a Soroban contract.
+   *
+   * @param contractId - The ID of the Soroban contract.
+   * @param entry - The authorization entry to sign.
+   * @param signer - The signer of the entry.
+   * @returns A Promise that resolves to the signed Soroban authorization entry.
+   * @throws An error if the signer is not authorized to sign the entry or if there is an error authorizing the entry.
+   */
+  private async signAuthEntry({ contractId, entry, signer }: SignAuthEntry): Promise<xdr.SorobanAuthorizationEntry> {
+    // no-op if it's source account auth
+    if (entry.credentials().switch().value !== xdr.SorobanCredentialsType.sorobanCredentialsAddress().value) {
+      return entry;
+    }
+
+    // Ensure the signer is authorized to sign the entry
+    const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
+    if (signer.addressId !== entryAddress.id) {
+      throw new Error(`${ERRORS.INVALID_SIGNER}: ${signer}`);
+    }
+
+    // Construct the ledger key
+    const ledgerKey: xdr.LedgerKey = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: new Address(contractId).toScAddress(),
+        key: xdr.ScVal.scvLedgerKeyContractInstance(),
+        durability: xdr.ContractDataDurability.persistent(),
+      }),
+    );
+
+    // Fetch the current contract ledger seq
+    let expirationLedgerSeq = 0;
+    const entryRes = await this.rpcClient.getLedgerEntries(ledgerKey);
+    if (entryRes.entries && entryRes.entries.length) {
+      // set auth entry to expire when contract data expires, but could any number of blocks in the future
+      expirationLedgerSeq = entryRes.entries[0].liveUntilLedgerSeq || 0;
+    } else {
+      throw new Error(ERRORS.CANNOT_FETCH_LEDGER_ENTRY);
+    }
+
+    try {
+      const authEntry = await authorizeEntry(entry, signer.method, expirationLedgerSeq, this.networkPassphrase);
+      return authEntry;
+    } catch (error) {
+      throw new Error(`${ERRORS.UNABLE_TO_AUTHORIZE_ENTRY}: ${error}`);
+    }
+  }
+
+  /**
+   * Signs the authorization entries for a Soroban transaction.
+   * @param authEntries - The authorization entries to sign.
+   * @param signers - The signers that will sign the entries.
+   * @param tx - The transaction that will be updated with the signed entries.
+   * @param contractId - The ID of the Soroban contract.
+   * @returns A Promise that resolves to the signed transaction.
+   */
+  private async signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction> {
+    let signedEntries: xdr.SorobanAuthorizationEntry[] = [];
+
+    // Create a Map to index signers by their addressId
+    const signerMap = new Map<string, ContractSigner>();
+    for (const signer of signers) {
+      signerMap.set(signer.addressId, signer);
+    }
+
+    for (const entry of authEntries) {
+      const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
+      const signer = signerMap.get(entryAddress.id);
+      if (signer) {
+        signedEntries.push(
+          await this.signAuthEntry({
+            entry,
+            signer,
+            contractId,
+          }),
+        );
+      }
+    }
+
+    // Soroban transaction can only have 1 operation
+    const rawInvokeHostFunctionOp = tx.operations[0] as Operation.InvokeHostFunction;
+    tx = TransactionBuilder.cloneFrom(tx)
+      .clearOperations()
+      .addOperation(
+        Operation.invokeHostFunction({
+          ...rawInvokeHostFunctionOp,
+          auth: signedEntries,
+        }),
+      )
+      .build();
+
+    return tx;
   }
 
   /**
@@ -146,100 +240,6 @@ export class SorobanService {
     }
 
     throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${txResponse}`);
-  }
-
-  /**
-   * Signs the authorization entries for a Soroban transaction.
-   * @param authEntries - The authorization entries to sign.
-   * @param signers - The signers that will sign the entries.
-   * @param tx - The transaction that will be updated with the signed entries.
-   * @param contractId - The ID of the Soroban contract.
-   * @returns A Promise that resolves to the signed transaction.
-   */
-  private async signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction> {
-    let signedEntries: xdr.SorobanAuthorizationEntry[] = [];
-
-    // Create a Map to index signers by their addressId
-    const signerMap = new Map<string, ContractSigner>();
-    for (const signer of signers) {
-      signerMap.set(signer.addressId, signer);
-    }
-
-    for (const entry of authEntries) {
-      const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
-      const signer = signerMap.get(entryAddress.id);
-      if (signer) {
-        signedEntries.push(
-          await this.signAuthEntry({
-            entry,
-            signer,
-            contractId,
-          }),
-        );
-      }
-    }
-
-    // Soroban transaction can only have 1 operation
-    const rawInvokeHostFunctionOp = tx.operations[0] as Operation.InvokeHostFunction;
-    tx = TransactionBuilder.cloneFrom(tx)
-      .clearOperations()
-      .addOperation(
-        Operation.invokeHostFunction({
-          ...rawInvokeHostFunctionOp,
-          auth: signedEntries,
-        }),
-      )
-      .build();
-
-    return tx;
-  }
-
-  /**
-   * Signs an authorization entry for a Soroban contract.
-   *
-   * @param contractId - The ID of the Soroban contract.
-   * @param entry - The authorization entry to sign.
-   * @param signer - The signer of the entry.
-   * @returns A Promise that resolves to the signed Soroban authorization entry.
-   * @throws An error if the signer is not authorized to sign the entry or if there is an error authorizing the entry.
-   */
-  private async signAuthEntry({ contractId, entry, signer }: SignAuthEntry): Promise<xdr.SorobanAuthorizationEntry> {
-    // no-op if it's source account auth
-    if (entry.credentials().switch().value !== xdr.SorobanCredentialsType.sorobanCredentialsAddress().value) {
-      return entry;
-    }
-
-    // Ensure the signer is authorized to sign the entry
-    const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
-    if (signer.addressId !== entryAddress.id) {
-      throw new Error(`${ERRORS.INVALID_SIGNER}: ${signer}`);
-    }
-
-    // Construct the ledger key
-    const ledgerKey: xdr.LedgerKey = xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
-        contract: new Address(contractId).toScAddress(),
-        key: xdr.ScVal.scvLedgerKeyContractInstance(),
-        durability: xdr.ContractDataDurability.persistent(),
-      }),
-    );
-
-    // Fetch the current contract ledger seq
-    let expirationLedgerSeq = 0;
-    const entryRes = await this.rpcClient.getLedgerEntries(ledgerKey);
-    if (entryRes.entries && entryRes.entries.length) {
-      // set auth entry to expire when contract data expires, but could any number of blocks in the future
-      expirationLedgerSeq = entryRes.entries[0].liveUntilLedgerSeq || 0;
-    } else {
-      throw new Error(ERRORS.CANNOT_FETCH_LEDGER_ENTRY);
-    }
-
-    try {
-      const authEntry = await authorizeEntry(entry, signer.method, expirationLedgerSeq, this.networkPassphrase);
-      return authEntry;
-    } catch (error) {
-      throw new Error(`${ERRORS.UNABLE_TO_AUTHORIZE_ENTRY}: ${error}`);
-    }
   }
 }
 
