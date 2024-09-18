@@ -1,12 +1,14 @@
 import { Alert, Button } from "@stellar/design-system";
 
 import { Box } from "@/components/layout/Box";
-import { STELLAR } from "@/config/settings";
+import { STELLAR, WEBAUTH_CONTRACT } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useBalance } from "@/query/useBalance";
 import { useTransfer } from "@/query/useTransfer";
 import { ContractSigner } from "@/types/types";
+import { useWebAuth } from "@/query/useWebAuth";
+import { Keypair } from "@stellar/stellar-sdk";
 
 interface AccountBalanceProps {
   accountSigner: ContractSigner;
@@ -35,12 +37,23 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     reset: resetFetchTransfer,
   } = useTransfer();
 
+  const {
+    data: fetchWebAuthResponse,
+    mutate: fetchWebAuth,
+    error: fetchWebAuthError,
+    isPending: isFetchWebAuthPending,
+    reset: resetFetchWebAuth,
+  } = useWebAuth();
+
   const renderResponse = () => {
     if (fetchTransferError) {
       console.log(fetchTransferError);
     }
     if (fetchBalanceError) {
       console.log(fetchTransferResponse);
+    }
+    if (fetchWebAuthError) {
+      console.log(fetchWebAuthError);
     }
 
     const title =
@@ -59,6 +72,14 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           )} ${tokenName}`}</Alert>
         ) : null}
 
+        {fetchWebAuthResponse ? (
+          <Alert
+            variant="success"
+            placement="inline"
+            title="Success"
+          >{`WebAuth response successful? ${fetchWebAuthResponse}`}</Alert>
+        ) : null}
+
         {fetchBalanceError ? (
           <Alert variant="error" placement="inline" title="Error">{`Error invoking token balance: ${JSON.stringify(
             fetchBalanceError,
@@ -68,6 +89,12 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
         {fetchTransferError ? (
           <Alert variant="error" placement="inline" title="Error">{`Error invoking transfer: ${JSON.stringify(
             fetchTransferError,
+          )}`}</Alert>
+        ) : null}
+
+        {fetchWebAuthError ? (
+          <Alert variant="error" placement="inline" title="Error">{`Error invoking WebAuth: ${JSON.stringify(
+            fetchWebAuthError,
           )}`}</Alert>
         ) : null}
       </>
@@ -86,6 +113,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           size="md"
           variant="secondary"
           onClick={() => {
+            resetFetchWebAuth();
             resetFetchTransfer();
             fetchBalance({
               accountId: accountSigner.addressId,
@@ -101,6 +129,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           size="md"
           variant="secondary"
           onClick={() => {
+            resetFetchWebAuth();
             resetFetchBalance();
             fetchTransfer({
               contractId,
@@ -115,12 +144,32 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
         >
           Transfer {amount} to {toAccTruncated}
         </Button>
+
+        <Button
+          size="md"
+          variant="secondary"
+          onClick={() => {
+            fetchWebAuth({
+              contractId: WEBAUTH_CONTRACT.ID,
+              signer: {
+                addressId: WEBAUTH_CONTRACT.SIGNER.PUBLIC_KEY,
+                method: Keypair.fromSecret(WEBAUTH_CONTRACT.SIGNER.PRIVATE_KEY),
+              },
+            });
+          }}
+          isLoading={isFetchWebAuthPending}
+          disabled={isFetchBalancePending || isFetchTransferPending}
+        >
+          WebAuth
+        </Button>
+
         <Button
           size="md"
           variant="tertiary"
           onClick={() => {
             resetFetchBalance();
             resetFetchTransfer();
+            resetFetchWebAuth();
           }}
           disabled={
             isFetchBalancePending ||
