@@ -3,7 +3,6 @@ import {
   authorizeEntry,
   Contract,
   Keypair,
-  Networks,
   Operation,
   SorobanRpc,
   Transaction,
@@ -11,7 +10,7 @@ import {
   xdr,
 } from "@stellar/stellar-sdk";
 import { getSorobanClient } from "./soroban";
-import { SOROBAN_RPC_URL, SOURCE_ACCOUNT_SECRET_KEY } from "@/config/settings";
+import { STELLAR } from "@/config/settings";
 import { ContractSigner, SimulationResult } from "@/types/types";
 import { ERRORS } from "./errors";
 import { SvConvert } from "./SvConvert";
@@ -24,11 +23,11 @@ export class SorobanService {
   public sourceAccountKP: Keypair;
 
   constructor() {
-    this.rpcClient = getSorobanClient(SOROBAN_RPC_URL);
-    this.networkPassphrase = Networks.TESTNET;
+    this.rpcClient = getSorobanClient(STELLAR.SOROBAN_RPC_URL);
+    this.networkPassphrase = STELLAR.NETWORK_PASSPHRASE;
     this.timeoutInSeconds = 60;
-    this.fee = "10000";
-    this.sourceAccountKP = Keypair.fromSecret(SOURCE_ACCOUNT_SECRET_KEY);
+    this.fee = STELLAR.MAX_FEE;
+    this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY);
   }
 
   withSorobanRpcURL(sorobanRpcUrl: string): SorobanService {

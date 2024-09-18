@@ -1,7 +1,7 @@
 import { Alert, Button } from "@stellar/design-system";
 
 import { Box } from "@/components/layout/Box";
-import { SOURCE_ACCOUNT_PUBLIC_KEY } from "@/config/settings";
+import { STELLAR } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useBalance } from "@/query/useBalance";
@@ -74,7 +74,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     );
   };
 
-  const toAcc = SOURCE_ACCOUNT_PUBLIC_KEY;
+  const toAcc = STELLAR.SOURCE_ACCOUNT.PUBLIC_KEY;
   const toAccTruncated = truncateStr(toAcc, 4);
   const amount: number = 1;
   const stroopsAmount = BigInt(amount) * BigInt(10 ** 7);

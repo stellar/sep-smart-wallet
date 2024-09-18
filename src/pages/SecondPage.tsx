@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Alert, Button, Heading } from "@stellar/design-system";
 import { useStellarAccount } from "@/query/useStellarAcount";
 import { Box } from "@/components/layout/Box";
-import { HORIZON_URL } from "@/config/settings";
+import { STELLAR } from "@/config/settings";
 
 const PUBLIC_KEY = "GAMQTINWD3YPP3GLTQZ4M6FKCCSRGROQLIIRVECIFC6VEGL5F64CND22";
 // const PUBLIC_KEY = "GDB7YEJN44SX76U43ZWXZUBEENCHOARNN6HCNTCWOZHAS73LKVJ6GNJH";
@@ -62,7 +62,7 @@ export const SecondPage = () => {
           variant="secondary"
           onClick={() => {
             fetchAccount({
-              horizonUrl: HORIZON_URL,
+              horizonUrl: STELLAR.HORIZON_URL,
               publicKey: PUBLIC_KEY,
             });
           }}
@@ -76,10 +76,7 @@ export const SecondPage = () => {
           onClick={() => {
             resetFetchAccount();
           }}
-          disabled={
-            isFetchAccountPending ||
-            !(fetchAccountResponse || fetchAccountError)
-          }
+          disabled={isFetchAccountPending || !(fetchAccountResponse || fetchAccountError)}
         >
           Clear
         </Button>

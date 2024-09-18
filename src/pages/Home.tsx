@@ -4,7 +4,7 @@ import { Keypair } from "@stellar/stellar-sdk";
 import { AccountBalance } from "@/components/AccountBalance";
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
-import { ACCOUNT_A_PRIVATE_KEY, ACCOUNT_A_PUBLIC_KEY, NATIVE_CONTRACT_ID } from "@/config/settings";
+import { G_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
 import { ContractSigner } from "@/types/types";
 
 type TokenInfo = {
@@ -14,13 +14,13 @@ type TokenInfo = {
 
 export const Home = () => {
   const tokenInfo: TokenInfo = {
-    contractId: NATIVE_CONTRACT_ID,
+    contractId: TOKEN_CONTRACT.NATIVE,
     name: "XLM",
   };
 
   const accountSigner: ContractSigner = {
-    addressId: ACCOUNT_A_PUBLIC_KEY,
-    method: Keypair.fromSecret(ACCOUNT_A_PRIVATE_KEY),
+    addressId: G_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
+    method: Keypair.fromSecret(G_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
   };
 
   // const b32 = Keypair.fromPublicKey("GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5")
