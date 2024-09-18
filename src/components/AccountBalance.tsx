@@ -2,7 +2,7 @@ import { Alert, Button } from "@stellar/design-system";
 import { Keypair, scValToBigInt } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
-import { SOURCE_ACCOUNT_PUBLIC_KEY, SOURCE_ACCOUNT_SECRET_KEY } from "@/config/settings";
+import { SOURCE_ACCOUNT_PUBLIC_KEY } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useContractBalance } from "@/query/useContractBalance";
@@ -19,8 +19,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   contractId,
   tokenName,
 }: AccountBalanceProps) => {
-  const sourceAccKP = Keypair.fromSecret(SOURCE_ACCOUNT_SECRET_KEY);
-
   const {
     data: fetchContractBalanceResponse,
     mutate: fetchContractBalance,
@@ -86,7 +84,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={() => {
             resetFetchTransfer();
             fetchContractBalance({
-              sourceAccPubKey: sourceAccKP.publicKey(),
               accountId: accountKP.publicKey(),
               contractId,
             });
@@ -101,7 +98,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           onClick={() => {
             resetFetchContractBalance();
             fetchTransfer({
-              kp: sourceAccKP,
               contractId,
               fromAccId: accountKP.publicKey(),
               toAccId: toAcc,
