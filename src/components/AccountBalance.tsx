@@ -46,13 +46,13 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   } = useWebAuth();
 
   const renderResponse = () => {
-    if (fetchTransferError) {
+    if (fetchTransferError !== null) {
       console.log(fetchTransferError);
     }
-    if (fetchBalanceError) {
-      console.log(fetchTransferResponse);
+    if (fetchBalanceError !== null) {
+      console.log(fetchBalanceError);
     }
-    if (fetchWebAuthError) {
+    if (fetchWebAuthError !== null) {
       console.log(fetchWebAuthError);
     }
 
