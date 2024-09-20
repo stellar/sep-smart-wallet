@@ -96,6 +96,25 @@ export class SorobanService {
     }
 
     try {
+      // TODO: use this approach to sign SorobaanAuthorizedInvocation
+      // const contractFn = entry.rootInvocation().function().contractFn();
+      // const rootInvocation = new xdr.SorobanAuthorizedInvocation({
+      //   subInvocations: [],
+      //   function: xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
+      //     new xdr.InvokeContractArgs({
+      //       contractAddress: contractFn.contractAddress(),
+      //       functionName: contractFn.functionName(),
+      //       args: contractFn.args(),
+      //     }),
+      //   ),
+      // });
+      // const authEntry = await authorizeInvocation(
+      //   signer.method,
+      //   expirationLedgerSeq,
+      //   rootInvocation,
+      //   signer.addressId,
+      //   this.networkPassphrase,
+      // );
       const authEntry = await authorizeEntry(entry, signer.method, expirationLedgerSeq, this.networkPassphrase);
       return authEntry;
     } catch (error) {
