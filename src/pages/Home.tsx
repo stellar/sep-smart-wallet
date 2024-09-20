@@ -6,6 +6,7 @@ import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
 import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
 import { ContractSigner } from "@/types/types";
+import { PassKeyManager } from "@/components/PassKeyManager";
 
 type TokenInfo = {
   name: string;
@@ -37,6 +38,7 @@ export const Home = () => {
         XLM Balance
       </Heading>
       <AccountBalance accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} />
+      <PassKeyManager accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} />
       <RouterLink to="/second" variant="primary">
         Go to Second page
       </RouterLink>

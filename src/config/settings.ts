@@ -10,6 +10,7 @@ type StellarConfig = {
 type ProjectConfig = {
   ID: string;
   TITLE: string;
+  DOMAIN: string;
 };
 
 type TokenContractConfig = {
@@ -36,6 +37,7 @@ export const STELLAR: StellarConfig = {
 export const PROJECT: ProjectConfig = {
   ID: "meridian-2024-smart-wallet",
   TITLE: "Smart Wallet",
+  DOMAIN: "localhost",
 };
 
 export const TOKEN_CONTRACT: TokenContractConfig = {
@@ -63,4 +65,12 @@ export const WEBAUTH_CONTRACT = {
     PRIVATE_KEY: "SB5HCY4MPV6CNFOPNCTZ5IOU5YGKMYJCASA346NHPLYG4W5ULBTTLYLL", // correct signature
     // PRIVATE_KEY: "SC6KX53MU72XPGYKHW76B7DI3SXVFHQLNMAKXHD3KF5VCGY2PJJ3ACSQ", // bad signature
   },
+};
+
+export const PASSKEY_CONTRACT = {
+  // ℹ️  Using wasm hash 8f2aca22d8832d28bee3fb1baa3ce6b9a6ef0328b87163a016fdf8b33826b666
+  // ℹ️  Transaction hash is 030dd6ff93369d7d298405dd7d38704e7836824fca32f1e533d825f74a5cc998
+  FACTORY: "CB4EKTD6XVN5U7N7BU77IDFDDKUTC747WV357ANADMKORLDCOGWXFHJ7",
+  // WALLET_WASM is installed in the soroban network and will be used by factory to deploy new contracts
+  WALLET_WASM: "ff6fca6e5eaf386cb8a0d659bf1606fb7a94f93e9c9c1fcbe66a062da246b11d",
 };
