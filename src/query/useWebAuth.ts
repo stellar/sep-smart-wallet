@@ -1,4 +1,4 @@
-import { xdr } from "@stellar/stellar-sdk";
+import { nativeToScVal } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
 import { SorobanService } from "@/helpers/SorobanService";
@@ -12,18 +12,15 @@ type WebAuthProps = {
 export const useWebAuth = () => {
   const mutation = useMutation<boolean, Error, WebAuthProps>({
     mutationFn: async ({ contractId, signer }: WebAuthProps) => {
-      const mapEntries: xdr.ScMapEntry[] = [
-        new xdr.ScMapEntry({
-          key: xdr.ScVal.scvString("account"),
-          val: xdr.ScVal.scvString(signer.addressId),
-        }),
-      ];
+      const mapEntries = nativeToScVal({
+        account: signer.addressId,
+      });
 
       const ss = new SorobanService();
       await ss.simulateContract({
         contractId,
         method: "web_auth_verify",
-        args: [xdr.ScVal.scvMap(mapEntries)],
+        args: [mapEntries],
         signers: [signer],
       });
 
