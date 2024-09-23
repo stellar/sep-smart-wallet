@@ -17,7 +17,7 @@ export type SorobanEntryAddress = {
 };
 
 export type GetSEP10cChallengeRequest = {
-  address: string;
+  account: string;
   memo?: string;
   home_domain?: string;
   client_domain?: string;
