@@ -7,7 +7,7 @@ export const useGetSEP10cChallenge = () => {
   const mutation = useMutation<GetSEP10cChallengeResponse, Error, GetSEP10cChallengeRequest>({
     mutationFn: async ({ account: address }: GetSEP10cChallengeRequest) => {
       const server = new SEP10cService();
-      return await server.fetchSEP10cGetChallenge({ account: address });
+      return await server.getSEP10cChallenge({ account: address });
     },
   });
 

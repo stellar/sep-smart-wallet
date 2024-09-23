@@ -2,8 +2,13 @@ import { Buffer } from "buffer";
 import { hash, Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 
 import { SEP10cServerKeypair, WEBAUTH_CONTRACT } from "@/config/settings";
-import { SEP10cServer } from "@/mocks/Sep10cServer";
-import { ContractSigner, GetSEP10cChallengeRequest, GetSEP10cChallengeResponse } from "@/types/types";
+import { SEP10cServer } from "@/mocks/SEP10cServer";
+import {
+  ContractSigner,
+  GetSEP10cChallengeRequest,
+  GetSEP10cChallengeResponse,
+  PostSEP10cChallengeRequest,
+} from "@/types/types";
 import { ScConvert } from "@/helpers/ScConvert";
 import { SorobanService } from "@/helpers/SorobanService";
 
@@ -44,12 +49,12 @@ export class SEP10cService {
   }
 
   /**
-   * Fetches the SEP10c challenge.
+   * Fetches the SEP-10c challenge.
    *
    * @param req - The request object containing the necessary data.
    * @returns A promise that resolves with the response from the server.
    */
-  async fetchSEP10cGetChallenge(req: GetSEP10cChallengeRequest) {
+  async getSEP10cChallenge(req: GetSEP10cChallengeRequest): Promise<GetSEP10cChallengeResponse> {
     const resp = await this.server.fetchSEP10cGetChallenge(req);
 
     this.validateSEP10cChallengeResponse(req, resp);
@@ -77,6 +82,18 @@ export class SEP10cService {
     const signedEntry = await this.sorobanService.signAuthEntry({ contractId, entry, signer });
 
     return signedEntry.credentials().toXDR("base64");
+  }
+
+  /**
+   * Sends a POST request to the SEP-10c challenge endpoint.
+   *
+   * @param req - The request object containing the necessary data for the challenge.
+   * @returns A promise that resolves to the JWT token.
+   */
+  async postSEP10cChallenge(req: PostSEP10cChallengeRequest) {
+    const { token } = await this.server.fetchSEP10cPostChallenge(req);
+
+    return token;
   }
 
   /**
