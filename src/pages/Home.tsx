@@ -39,8 +39,8 @@ export const Home = () => {
       </Heading>
       <AccountBalance accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} />
       {/* <PassKeyManager accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} /> */}
-      <RouterLink to="/second" variant="primary">
-        Go to Second page
+      <RouterLink to="/sep10c-debugger" variant="primary">
+        Go to SEP-10c Debugger
       </RouterLink>
     </Box>
   );

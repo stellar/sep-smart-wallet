@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // Route pages
 import { App } from "@/App";
 import { Home } from "@/pages/Home";
-import { SecondPage } from "@/pages/SecondPage";
+import { SEP10cDebugger } from "@/pages/SEP10cDebugger";
 
 // Styles
 import "@stellar/design-system/build/styles.min.css";
@@ -22,8 +22,8 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/second",
-        element: <SecondPage />,
+        path: "/sep10c-debugger",
+        element: <SEP10cDebugger />,
       },
     ],
   },

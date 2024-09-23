@@ -201,6 +201,7 @@ export class SorobanService {
       .setNetworkPassphrase(this.networkPassphrase)
       .build();
 
+    console.log("Simulating contract call:", tx.toXDR());
     // Simulate the transaction
     let simulationResponse = await this.rpcClient.simulateTransaction(tx);
     if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
