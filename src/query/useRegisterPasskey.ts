@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { PasskeyService } from "@/helpers/PasskeyService";
+import { PasskeySorobanManager } from "@/helpers/PasskeySorobanManager";
 
 type RegisterPasskeyArgs = {
   projectName: string;
@@ -9,10 +9,10 @@ type RegisterPasskeyArgs = {
 export const useRegisterPasskey = () => {
   const mutation = useMutation<boolean, Error, RegisterPasskeyArgs>({
     mutationFn: async ({ projectName, userName }: RegisterPasskeyArgs) => {
-      const passkeyService = PasskeyService.getInstance();
-      const { keyId, publicKey } = await passkeyService.registerPasskey(projectName, userName);
+      const pksManager = PasskeySorobanManager.getInstance();
+      await pksManager.createContractPasskey(projectName, userName);
 
-      console.log(`Successfully registered passkey with keyId: ${keyId} and publicKey: ${publicKey}`);
+      console.log("Successfully registered passkey!");
 
       return true;
     },

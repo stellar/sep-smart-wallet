@@ -7,6 +7,14 @@ import { Buffer } from "buffer";
 export class PasskeyService {
   private static instance: PasskeyService;
 
+  public static getInstance(): PasskeyService {
+    if (!PasskeyService.instance) {
+      PasskeyService.instance = new PasskeyService();
+    }
+
+    return PasskeyService.instance;
+  }
+
   public domain: string;
   public keyId?: string;
 
@@ -21,14 +29,6 @@ export class PasskeyService {
 
     console.log(`PasskeyService domain set to:  ${this.domain}`);
     return this;
-  }
-
-  public static getInstance(): PasskeyService {
-    if (!PasskeyService.instance) {
-      PasskeyService.instance = new PasskeyService();
-    }
-
-    return PasskeyService.instance;
   }
 
   // const user = prompt("Give this passkey a name");
@@ -125,8 +125,8 @@ export class PasskeyService {
             @Later
     */
 
-    console.log("publicKey: ", publicKey);
-    console.log("publicKey: ", base64url.decode(publicKey.toString("base64")));
+    console.log("publicKey bytes:  ", publicKey);
+    console.log("publicKey string: ", base64url(Buffer.from(publicKey)));
 
     return publicKey;
   }

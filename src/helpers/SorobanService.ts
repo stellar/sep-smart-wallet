@@ -16,6 +16,16 @@ import { ERRORS } from "./errors";
 import { SvConvert } from "./SvConvert";
 
 export class SorobanService {
+  private static instance: SorobanService;
+
+  public static getInstance(): SorobanService {
+    if (!SorobanService.instance) {
+      SorobanService.instance = new SorobanService();
+    }
+
+    return SorobanService.instance;
+  }
+
   public rpcClient: SorobanRpc.Server;
   public networkPassphrase: string;
   public timeoutInSeconds: number;
