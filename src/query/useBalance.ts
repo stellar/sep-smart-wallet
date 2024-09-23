@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
 import { ScConvert } from "@/helpers/ScConvert";
-import { SorobanService } from "@/helpers/SorobanService";
+import { SorobanService } from "@/services/SorobanService";
 
 type TokenBalanceProps = {
   accountId: string;

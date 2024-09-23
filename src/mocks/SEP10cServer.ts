@@ -11,8 +11,8 @@ import {
 
 import { SEP10cServerKeypair, STELLAR, WEBAUTH_CONTRACT } from "@/config/settings";
 import { ScConvert } from "@/helpers/ScConvert";
-import { getSorobanClient } from "@/helpers/soroban";
-import { SorobanService } from "@/helpers/SorobanService";
+import { getSorobanClient } from "@/helpers/getSorobanClient";
+import { SorobanService } from "@/services/SorobanService";
 import {
   GetSEP10cChallengeRequest,
   GetSEP10cChallengeResponse,

@@ -3,18 +3,18 @@ import { Buffer } from "buffer";
 
 import { PASSKEY_CONTRACT } from "@/config/settings";
 import base64url from "@/helpers/base64url";
-import { PasskeyService } from "@/helpers/PasskeyService";
-import { SorobanService } from "@/helpers/SorobanService";
+import { PasskeyService } from "@/services/PasskeyService";
+import { SorobanService } from "@/services/SorobanService";
 
-export class PasskeySorobanManager {
-  private static instance: PasskeySorobanManager;
+export class SmartWalletManager {
+  private static instance: SmartWalletManager;
 
-  public static getInstance(): PasskeySorobanManager {
-    if (!PasskeySorobanManager.instance) {
-      PasskeySorobanManager.instance = new PasskeySorobanManager();
+  public static getInstance(): SmartWalletManager {
+    if (!SmartWalletManager.instance) {
+      SmartWalletManager.instance = new SmartWalletManager();
     }
 
-    return PasskeySorobanManager.instance;
+    return SmartWalletManager.instance;
   }
 
   private passkeyService: PasskeyService;
@@ -26,12 +26,12 @@ export class PasskeySorobanManager {
     this.sorobanService = SorobanService.getInstance();
   }
 
-  public withPasskeyService(passkeyService: PasskeyService): PasskeySorobanManager {
+  public withPasskeyService(passkeyService: PasskeyService): SmartWalletManager {
     this.passkeyService = passkeyService;
     return this;
   }
 
-  public withSorobanService(sorobanService: SorobanService): PasskeySorobanManager {
+  public withSorobanService(sorobanService: SorobanService): SmartWalletManager {
     this.sorobanService = sorobanService;
     return this;
   }

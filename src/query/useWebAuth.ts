@@ -1,7 +1,7 @@
 import { nativeToScVal } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
-import { SorobanService } from "@/helpers/SorobanService";
+import { SorobanService } from "@/services/SorobanService";
 import { ContractSigner } from "@/types/types";
 
 type WebAuthProps = {

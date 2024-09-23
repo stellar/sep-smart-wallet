@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { SEP10cService } from "@/helpers/SEP10cService";
+import { SEP10cService } from "@/services/SEP10cService";
 import { GetSEP10cChallengeRequest, GetSEP10cChallengeResponse } from "@/types/types";
 
 export const useGetSEP10cChallenge = () => {

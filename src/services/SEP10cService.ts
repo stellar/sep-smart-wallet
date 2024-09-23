@@ -10,7 +10,7 @@ import {
   PostSEP10cChallengeRequest,
 } from "@/types/types";
 import { ScConvert } from "@/helpers/ScConvert";
-import { SorobanService } from "@/helpers/SorobanService";
+import { SorobanService } from "@/services/SorobanService";
 
 export type SEP10cChallengeValidationData = {
   ContractID: string;

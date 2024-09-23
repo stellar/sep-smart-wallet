@@ -9,10 +9,10 @@ import {
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-import { getSorobanClient } from "./soroban";
+import { getSorobanClient } from "@/helpers/getSorobanClient";
 import { STELLAR } from "@/config/settings";
 import { ContractSigner, SimulationResult } from "@/types/types";
-import { ERRORS } from "./errors";
+import { ERRORS } from "@/helpers/errors";
 import { ScConvert } from "@/helpers/ScConvert";
 
 export class SorobanService {
