@@ -1,8 +1,8 @@
 import { xdr } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
-import { ContractSigner } from "@/types/types";
 import { SorobanService } from "@/helpers/SorobanService";
+import { ContractSigner } from "@/types/types";
 
 type WebAuthProps = {
   contractId: string;

@@ -13,7 +13,7 @@ import { getSorobanClient } from "./soroban";
 import { STELLAR } from "@/config/settings";
 import { ContractSigner, SimulationResult } from "@/types/types";
 import { ERRORS } from "./errors";
-import { SvConvert } from "./SvConvert";
+import { ScConvert } from "@/helpers/ScConvert";
 
 export class SorobanService {
   private static instance: SorobanService;
@@ -81,7 +81,7 @@ export class SorobanService {
     }
 
     // Ensure the signer is authorized to sign the entry
-    const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
+    const entryAddress = ScConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
     if (signer.addressId !== entryAddress.id) {
       throw new Error(`${ERRORS.INVALID_SIGNER}: ${signer}`);
     }
@@ -150,7 +150,7 @@ export class SorobanService {
     }
 
     for (const entry of authEntries) {
-      const entryAddress = SvConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
+      const entryAddress = ScConvert.sorobanEntryAddressFromScAddress(entry.credentials().address().address());
       const signer = signerMap.get(entryAddress.id);
       if (signer) {
         signedEntries.push(

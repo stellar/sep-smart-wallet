@@ -7,11 +7,7 @@ type StellarAccountProps = {
 };
 
 export const useStellarAccount = () => {
-  const mutation = useMutation<
-    Horizon.ServerApi.AccountRecord,
-    Error,
-    StellarAccountProps
-  >({
+  const mutation = useMutation<Horizon.ServerApi.AccountRecord, Error, StellarAccountProps>({
     mutationFn: async ({ horizonUrl, publicKey }: StellarAccountProps) => {
       const server = new Horizon.Server(horizonUrl);
       return await server.accounts().accountId(publicKey).call();

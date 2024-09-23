@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { SvConvert } from "@/helpers/SvConvert";
+import { ScConvert } from "@/helpers/ScConvert";
 import { SorobanService } from "@/helpers/SorobanService";
 
 type TokenBalanceProps = {
@@ -15,10 +15,10 @@ export const useBalance = () => {
       const { simulationResponse } = await ss.simulateContract({
         contractId,
         method: "balance",
-        args: [SvConvert.accountIdToScVal(accountId)],
+        args: [ScConvert.accountIdToScVal(accountId)],
       });
 
-      return SvConvert.scValToBigInt(simulationResponse.result!.retval);
+      return ScConvert.scValToBigInt(simulationResponse.result!.retval);
     },
   });
 

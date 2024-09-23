@@ -1,9 +1,9 @@
 import { XdrLargeInt } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
-import { SvConvert } from "@/helpers/SvConvert";
-import { ContractSigner } from "@/types/types";
+import { ScConvert } from "@/helpers/ScConvert";
 import { SorobanService } from "@/helpers/SorobanService";
+import { ContractSigner } from "@/types/types";
 
 type TokenTransferProps = {
   contractId: string;
@@ -16,8 +16,8 @@ type TokenTransferProps = {
 export const useTransfer = () => {
   const mutation = useMutation<bigint, Error, TokenTransferProps>({
     mutationFn: async ({ contractId, fromAccId, toAccId, amount, signer }: TokenTransferProps) => {
-      const scFrom = SvConvert.accountIdToScVal(fromAccId);
-      const scTo = SvConvert.accountIdToScVal(toAccId);
+      const scFrom = ScConvert.accountIdToScVal(fromAccId);
+      const scTo = ScConvert.accountIdToScVal(toAccId);
       const scAmount = new XdrLargeInt("i128", amount).toScVal();
 
       let signers: ContractSigner[] = [];
@@ -38,10 +38,10 @@ export const useTransfer = () => {
       const { simulationResponse: balanceSimulation } = await ss.simulateContract({
         contractId,
         method: "balance",
-        args: [SvConvert.accountIdToScVal(fromAccId)],
+        args: [ScConvert.accountIdToScVal(fromAccId)],
       });
 
-      return SvConvert.scValToBigInt(balanceSimulation.result!.retval);
+      return ScConvert.scValToBigInt(balanceSimulation.result!.retval);
     },
   });
 

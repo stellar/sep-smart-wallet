@@ -1,9 +1,10 @@
-import { PASSKEY_CONTRACT } from "@/config/settings";
-import { PasskeyService } from "@/helpers/PasskeyService";
-import { SorobanService } from "@/helpers/SorobanService";
-import base64url from "@/helpers/base64url";
 import { Address, hash, xdr } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
+
+import { PASSKEY_CONTRACT } from "@/config/settings";
+import base64url from "@/helpers/base64url";
+import { PasskeyService } from "@/helpers/PasskeyService";
+import { SorobanService } from "@/helpers/SorobanService";
 
 export class PasskeySorobanManager {
   private static instance: PasskeySorobanManager;

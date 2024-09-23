@@ -1,7 +1,8 @@
-import { SorobanEntryAddress } from "@/types/types";
 import { Address, scValToBigInt, StrKey, xdr, XdrLargeInt } from "@stellar/stellar-sdk";
 
-export const SvConvert = {
+import { SorobanEntryAddress } from "@/types/types";
+
+export const ScConvert = {
   accountIdToScVal: (accountId: string): xdr.ScVal => {
     return new Address(accountId).toScVal();
   },

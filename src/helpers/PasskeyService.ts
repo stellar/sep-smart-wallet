@@ -1,8 +1,9 @@
-import { PROJECT } from "@/config/settings";
-import { startRegistration } from "@simplewebauthn/browser";
 import { AuthenticatorAttestationResponseJSON } from "@simplewebauthn/types";
-import base64url from "@/helpers/base64url";
+import { startRegistration } from "@simplewebauthn/browser";
 import { Buffer } from "buffer";
+
+import { PROJECT } from "@/config/settings";
+import base64url from "@/helpers/base64url";
 
 export class PasskeyService {
   private static instance: PasskeyService;
