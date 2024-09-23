@@ -3,8 +3,9 @@ import { hash, Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 
 import { SEP10cServerKeypair, WEBAUTH_CONTRACT } from "@/config/settings";
 import { SEP10cServer } from "@/mocks/Sep10cServer";
-import { GetSEP10cChallengeRequest, GetSEP10cChallengeResponse } from "@/types/types";
+import { ContractSigner, GetSEP10cChallengeRequest, GetSEP10cChallengeResponse } from "@/types/types";
 import { ScConvert } from "@/helpers/ScConvert";
+import { SorobanService } from "@/helpers/SorobanService";
 
 export type SEP10cChallengeValidationData = {
   ContractID: string;
@@ -12,9 +13,10 @@ export type SEP10cChallengeValidationData = {
   PublicKey: string;
 };
 
-export class SEP10cClient {
+export class SEP10cService {
   private server: SEP10cServer;
   private validationData: SEP10cChallengeValidationData;
+  private sorobanService: SorobanService;
 
   constructor() {
     this.server = new SEP10cServer();
@@ -23,8 +25,30 @@ export class SEP10cClient {
       FunctionName: WEBAUTH_CONTRACT.FN_NAME,
       PublicKey: SEP10cServerKeypair.publicKey,
     };
+    this.sorobanService = SorobanService.getInstance();
   }
 
+  public withValidationData(data: SEP10cChallengeValidationData) {
+    this.validationData = data;
+    return this;
+  }
+
+  public withSorobanService(sorobanService: SorobanService) {
+    this.sorobanService = sorobanService;
+    return this;
+  }
+
+  public withSEP10cServer(server: SEP10cServer) {
+    this.server = server;
+    return this;
+  }
+
+  /**
+   * Fetches the SEP10c challenge.
+   *
+   * @param req - The request object containing the necessary data.
+   * @returns A promise that resolves with the response from the server.
+   */
   async fetchSEP10cGetChallenge(req: GetSEP10cChallengeRequest) {
     const resp = await this.server.fetchSEP10cGetChallenge(req);
 
@@ -34,16 +58,34 @@ export class SEP10cClient {
   }
 
   /**
+   * Signs an authorization entry using the provided signer.
+   *
+   * @param authEntry - The authorization entry to sign. It can be either a string or an xdr.SorobanAuthorizationEntry object.
+   * @param signer - The signer to use for signing the entry.
+   * @returns The signed entry in XDR format.
+   */
+  async signAuthEntry({ authEntry, signer }: SignAuthEntryProps) {
+    let entry: xdr.SorobanAuthorizationEntry;
+    if (typeof authEntry === "string") {
+      entry = xdr.SorobanAuthorizationEntry.fromXDR(authEntry, "base64");
+    } else {
+      entry = authEntry;
+    }
+
+    const contractId = this.validationData.ContractID;
+
+    const signedEntry = await this.sorobanService.signAuthEntry({ contractId, entry, signer });
+
+    return signedEntry.credentials().toXDR("base64");
+  }
+
+  /**
    * Validates the SEP10c challenge response.
    *
    * @param req - The SEP10c challenge request.
    * @param resp - The SEP10c challenge response.
-   * @throws {Error} If server_signature is missing or empty.
    * @throws {Error} If server_signature is invalid.
-   * @throws {Error} If authorization_entry is missing or empty.
-   * @throws {Error} If authorization_entry.contractID is invalid.
-   * @throws {Error} If authorization_entry.functionName is invalid.
-   * @throws {Error} If authorization_entry.args length is invalid.
+   * @throws {Error} If authorization_entry is invalid.
    */
   private validateSEP10cChallengeResponse(req: GetSEP10cChallengeRequest, resp: GetSEP10cChallengeResponse) {
     const { authorization_entry, server_signature } = resp;
@@ -86,7 +128,6 @@ export class SEP10cClient {
       throw new Error(`args is length is invalid! Expected: 1 but got: ${scVals.length}`);
     }
     let args: { [key: string]: string } = scValToNative(scVals[0]);
-    console.log("sorobanAuthEntry.args: ", args);
     if (req.account !== args["account"]) {
       throw new Error(`account is invalid! Expected: ${req.account} but got: ${args["account"]}`);
     }
@@ -104,3 +145,8 @@ export class SEP10cClient {
     }
   }
 }
+
+type SignAuthEntryProps = {
+  authEntry: string | xdr.SorobanAuthorizationEntry;
+  signer: ContractSigner;
+};

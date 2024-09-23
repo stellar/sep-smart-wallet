@@ -6,6 +6,7 @@ import { Box } from "@/components/layout/Box";
 import { C_ACCOUNT_ED25519_SIGNER } from "@/config/settings";
 import { useGetSEP10cChallenge } from "@/query/useGetSEP10cChallenge";
 import { ContractSigner } from "@/types/types";
+import { useSignGetSEP10cChallenge } from "@/query/useSignGetSEP10cChallenge";
 
 export const SEP10cDebugger = () => {
   const accountSigner: ContractSigner = {
@@ -18,34 +19,50 @@ export const SEP10cDebugger = () => {
     data: fetchGetSEP10cChallengeResponse,
     mutate: fetchGetSEP10cChallenge,
     error: fetchGetSEP10cChallengeError,
-    isPending: isfetchGetSEP10cChallengePending,
-    reset: resetfetchGetSEP10cChallenge,
+    isPending: isFetchGetSEP10cChallengePending,
+    reset: resetFetchGetSEP10cChallenge,
   } = useGetSEP10cChallenge();
 
+  const {
+    data: fetchSignGetSEP10cChallengeResponse,
+    mutate: fetchSignGetSEP10cChallenge,
+    error: fetchSignGetSEP10cChallengeError,
+    isPending: isfetchSignGetSEP10cChallengePending,
+    reset: resetfetchSignGetSEP10cChallenge,
+  } = useSignGetSEP10cChallenge();
+
   const renderResponse = () => {
-    console.log(fetchGetSEP10cChallengeResponse);
+    return (
+      <>
+        {fetchGetSEP10cChallengeError && (
+          <Alert
+            variant="error"
+            placement="inline"
+            title="Error"
+          >{`Error fetching SEP-10c Challenge: ${fetchGetSEP10cChallengeError}`}</Alert>
+        )}
 
-    if (fetchGetSEP10cChallengeResponse) {
-      return (
-        <Alert
-          variant="success"
-          placement="inline"
-          title="Success"
-        >{`Account ${fetchGetSEP10cChallengeResponse} data fetched`}</Alert>
-      );
-    }
+        {fetchGetSEP10cChallengeResponse && (
+          <Alert variant="success" placement="inline" title="Success">{`✅ (1/3) SEP-10c challenge fetched`}</Alert>
+        )}
 
-    if (fetchGetSEP10cChallengeError) {
-      return (
-        <Alert
-          variant="error"
-          placement="inline"
-          title="Error"
-        >{`Error fetching SEP-10c Challenge: ${fetchGetSEP10cChallengeError}`}</Alert>
-      );
-    }
+        {fetchSignGetSEP10cChallengeError && (
+          <Alert
+            variant="error"
+            placement="inline"
+            title="Error"
+          >{`Error signing SEP-10c Challenge: ${fetchSignGetSEP10cChallengeError}`}</Alert>
+        )}
 
-    return null;
+        {fetchSignGetSEP10cChallengeResponse && (
+          <Alert
+            variant="success"
+            placement="inline"
+            title="Success"
+          >{`✅ (2/3) SEP-10c challenge signed. Credentials: ${fetchSignGetSEP10cChallengeResponse}`}</Alert>
+        )}
+      </>
+    );
   };
 
   return (
@@ -72,16 +89,35 @@ export const SEP10cDebugger = () => {
               account: accountSigner.addressId,
             });
           }}
-          isLoading={isfetchGetSEP10cChallengePending}
+          isLoading={isFetchGetSEP10cChallengePending}
         >
           Fetch SEP-10c Challenge
         </Button>
         <Button
           size="md"
+          variant="secondary"
+          onClick={() => {
+            fetchSignGetSEP10cChallenge({
+              authEntry: fetchGetSEP10cChallengeResponse!.authorization_entry,
+              signer: accountSigner,
+            });
+          }}
+          isLoading={isfetchSignGetSEP10cChallengePending}
+          disabled={!fetchGetSEP10cChallengeResponse}
+        >
+          Sign Challenge
+        </Button>
+        <Button
+          size="md"
           variant="tertiary"
-          onClick={resetfetchGetSEP10cChallenge}
+          onClick={() => {
+            resetFetchGetSEP10cChallenge();
+            resetfetchSignGetSEP10cChallenge();
+          }}
           disabled={
-            isfetchGetSEP10cChallengePending || !(fetchGetSEP10cChallengeResponse || fetchGetSEP10cChallengeError)
+            (isFetchGetSEP10cChallengePending || !(fetchGetSEP10cChallengeResponse || fetchGetSEP10cChallengeError)) &&
+            (isfetchSignGetSEP10cChallengePending ||
+              !(fetchSignGetSEP10cChallengeResponse || fetchSignGetSEP10cChallengeError))
           }
         >
           Clear

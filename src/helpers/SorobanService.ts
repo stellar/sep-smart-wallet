@@ -74,7 +74,7 @@ export class SorobanService {
    * @returns A Promise that resolves to the signed Soroban authorization entry.
    * @throws An error if the signer is not authorized to sign the entry or if there is an error authorizing the entry.
    */
-  private async signAuthEntry({ contractId, entry, signer }: SignAuthEntry): Promise<xdr.SorobanAuthorizationEntry> {
+  public async signAuthEntry({ contractId, entry, signer }: SignAuthEntry): Promise<xdr.SorobanAuthorizationEntry> {
     // no-op if it's source account auth
     if (entry.credentials().switch().value !== xdr.SorobanCredentialsType.sorobanCredentialsAddress().value) {
       return entry;
@@ -140,7 +140,7 @@ export class SorobanService {
    * @param contractId - The ID of the Soroban contract.
    * @returns A Promise that resolves to the signed transaction.
    */
-  private async signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction> {
+  public async signAuthEntries({ authEntries, signers, contractId, tx }: SignAuthEntries): Promise<Transaction> {
     let signedEntries: xdr.SorobanAuthorizationEntry[] = [];
 
     // Create a Map to index signers by their addressId

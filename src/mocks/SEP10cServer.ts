@@ -30,7 +30,6 @@ export class SEP10cServer {
 
     const authEntry = simResult.simulationResponse.result!.auth![0];
     const authEntryXDR = authEntry.toXDR("base64");
-    console.log(authEntryXDR);
 
     return {
       authorization_entry: authEntryXDR,
