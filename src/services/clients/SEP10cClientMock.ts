@@ -53,7 +53,14 @@ export class SEP10cClientMock implements SEP10cClient {
     const simResult = await this.sorobanService.simulateContract({
       contractId: this.sep10cInfo.webAuthContractId,
       method: WEBAUTH_CONTRACT.FN_NAME,
-      args: [nativeToScVal(req)],
+      args: [
+        nativeToScVal(req.address),
+        nativeToScVal(null),
+        nativeToScVal(null),
+        nativeToScVal(null),
+        nativeToScVal(null),
+        nativeToScVal(null),
+      ],
     });
 
     const authEntry = simResult.simulationResponse.result!.auth![0];

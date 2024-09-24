@@ -57,9 +57,9 @@ export const C_ACCOUNT_ED25519_SIGNER: SignerKeypair = {
   // PRIVATE_KEY: "SC6KX53MU72XPGYKHW76B7DI3SXVFHQLNMAKXHD3KF5VCGY2PJJ3ACSQ", // bad signature
 };
 
-// contract deployed from https://github.com/philipliu/demo/blob/708390d210a12310b93096039301f1036cd41b35/auth_contract/contracts/custom_account/src/lib.rs
+// contract deployed from https://github.com/philipliu/demo/blob/812490ec3559678374ab7d785686bce9691a9add/sep10c/contracts/web_auth/src/lib.rs#L17
 export const WEBAUTH_CONTRACT = {
-  ID: "CCB7YGKACB5LDXDATYBTC37DXD63LBRR76HZTAXBJJR47JMF5JBNRF4D",
+  ID: "CDQDXQPUUDLUZGSBQZBUMZA6ZKVR5JWEX4Y32K3MYQYUMAHIJFLVNOYB",
   FN_NAME: "web_auth_verify",
   SIGNER: {
     PUBLIC_KEY: "GC4BDFONC3EHB5VZCI5BYF2OJEXX7LCU7JROUYF5RRY62FAWMF4GFV3X",
