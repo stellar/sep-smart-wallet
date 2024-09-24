@@ -6,15 +6,14 @@ import base64url from "@/helpers/base64url";
 import { PasskeyService } from "@/services/PasskeyService";
 import { SorobanService } from "@/services/SorobanService";
 
-export class SmartWalletManager {
-  private static instance: SmartWalletManager;
-
-  public static getInstance(): SmartWalletManager {
-    if (!SmartWalletManager.instance) {
-      SmartWalletManager.instance = new SmartWalletManager();
+export class SmartWalletService {
+  private static instance: SmartWalletService;
+  public static getInstance(): SmartWalletService {
+    if (!SmartWalletService.instance) {
+      SmartWalletService.instance = new SmartWalletService();
     }
 
-    return SmartWalletManager.instance;
+    return SmartWalletService.instance;
   }
 
   private passkeyService: PasskeyService;
@@ -26,17 +25,17 @@ export class SmartWalletManager {
     this.sorobanService = SorobanService.getInstance();
   }
 
-  public withPasskeyService(passkeyService: PasskeyService): SmartWalletManager {
+  public withPasskeyService(passkeyService: PasskeyService): SmartWalletService {
     this.passkeyService = passkeyService;
     return this;
   }
 
-  public withSorobanService(sorobanService: SorobanService): SmartWalletManager {
+  public withSorobanService(sorobanService: SorobanService): SmartWalletService {
     this.sorobanService = sorobanService;
     return this;
   }
 
-  public async createContractPasskey(app: string, user: string) {
+  public async createPasskeyContract(app: string, user: string): Promise<string> {
     const { keyId, publicKey } = await this.passkeyService.registerPasskey(app, user);
 
     console.log(
@@ -48,20 +47,12 @@ export class SmartWalletManager {
     const { tx, simulationResponse } = await this.sorobanService.simulateContract({
       contractId: this.WebAuthnFactoryContractID,
       method: "deploy",
-      // BytesN<32>, id: Bytes, pk: BytesN<65>
       args: [xdr.ScVal.scvBytes(hash(keyId)), xdr.ScVal.scvBytes(keyId), xdr.ScVal.scvBytes(publicKey)],
     });
 
     const successResp = await this.sorobanService.callContract({ tx, simulationResponse });
-    console.log("successResp: ", successResp);
-    console.log("successResp.resultXdr: ", successResp.resultXdr);
-    console.log("successResp.resultMetaXdr: ", successResp.resultMetaXdr);
-
-    console.log("simulationResponse.result!.retval: ", simulationResponse.result!.retval);
-    console.log(
-      "simulationResponse.result!.retval as Address: ",
-      Address.fromScVal(simulationResponse.result!.retval).toString(),
-    );
-    // this.sorobanService.createContract(keyId, publicKey);
+    console.log("simulation return value: ", Address.fromScVal(simulationResponse.result!.retval).toString());
+    console.log("execution return value: ", Address.fromScVal(successResp.returnValue!).toString());
+    return Address.fromScVal(successResp.returnValue!).toString();
   }
 }

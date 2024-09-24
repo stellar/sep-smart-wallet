@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { PasskeySorobanManager } from "@/helpers/PasskeySorobanManager";
+import { SmartWalletService } from "@/services/SmartWalletService";
 
 type RegisterPasskeyArgs = {
   projectName: string;
@@ -8,14 +8,10 @@ type RegisterPasskeyArgs = {
 };
 
 export const useRegisterPasskey = () => {
-  const mutation = useMutation<boolean, Error, RegisterPasskeyArgs>({
+  const mutation = useMutation<string, Error, RegisterPasskeyArgs>({
     mutationFn: async ({ projectName, userName }: RegisterPasskeyArgs) => {
-      const pksManager = PasskeySorobanManager.getInstance();
-      await pksManager.createContractPasskey(projectName, userName);
-
-      console.log("Successfully registered passkey!");
-
-      return true;
+      const pksManager = SmartWalletService.getInstance();
+      return await pksManager.createPasskeyContract(projectName, userName);
     },
   });
 

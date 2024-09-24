@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // Route pages
 import { App } from "@/App";
 import { Home } from "@/pages/Home";
+import { PassKeyDebugPage } from "@/pages/PassKeyDebugPage";
 import { SEP10cDebugPage } from "@/pages/SEP10cDebugPage";
 import { TokenDebugPage } from "@/pages/TokenDebugPage";
 
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "/sep10c",
         element: <SEP10cDebugPage />,
+      },
+      {
+        path: "/passkey",
+        element: <PassKeyDebugPage />,
       },
     ],
   },

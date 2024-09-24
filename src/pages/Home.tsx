@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Heading } from "@stellar/design-system";
 import { Keypair } from "@stellar/stellar-sdk";
 
@@ -6,9 +7,6 @@ import { RouterLink } from "@/components/RouterLink";
 import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useTokenStore } from "@/store/useTokenStore";
-import { useEffect } from "react";
-
-// import { PassKeyManager } from "@/components/PassKeyManager";
 
 export const Home = () => {
   // Populate Store with default values
@@ -31,12 +29,14 @@ export const Home = () => {
       <Heading size="md" as="h2">
         {contractSigner?.addressId || "No account selected"}
       </Heading>
-      {/* <PassKeyManager accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} /> */}
       <RouterLink to="/token" variant="primary">
         Token Debugger ({tokenInfo?.name})
       </RouterLink>
       <RouterLink to="/sep10c" variant="primary">
         SEP-10c Debugger
+      </RouterLink>
+      <RouterLink to="/passkey" variant="primary">
+        Passkey Debugger
       </RouterLink>
     </Box>
   );
