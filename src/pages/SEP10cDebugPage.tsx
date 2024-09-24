@@ -1,21 +1,22 @@
 import { Alert, Button, Heading } from "@stellar/design-system";
-import { Keypair } from "@stellar/stellar-sdk";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Box } from "@/components/layout/Box";
-import { C_ACCOUNT_ED25519_SIGNER } from "@/config/settings";
 import { useGetSEP10cChallenge } from "@/query/useGetSEP10cChallenge";
-import { ContractSigner } from "@/types/types";
 import { useSignGetSEP10cChallenge } from "@/query/useSignGetSEP10cChallenge";
 import { usePostSEP10cChallenge } from "@/query/usePostSEP10cChallenge";
+import { useContractSignerStore } from "@/store/useContractSignerStore";
 
 export const SEP10cDebugPage = () => {
-  const accountSigner: ContractSigner = {
-    addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
-    method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
-  };
-
   const navigate = useNavigate();
+
+  const { contractSigner } = useContractSignerStore();
+  useEffect(() => {
+    if (!contractSigner) {
+      navigate("/");
+    }
+  }, []);
 
   const {
     data: getSEP10cChallengeResponse,
@@ -113,7 +114,7 @@ export const SEP10cDebugPage = () => {
           variant="secondary"
           onClick={() => {
             getSEP10cChallenge({
-              account: accountSigner.addressId,
+              account: contractSigner!.addressId,
             });
           }}
           isLoading={isGetSEP10cChallengePending}
@@ -127,7 +128,7 @@ export const SEP10cDebugPage = () => {
           onClick={() => {
             signSEP10cChallenge({
               authEntry: getSEP10cChallengeResponse!.authorization_entry,
-              signer: accountSigner,
+              signer: contractSigner!,
             });
           }}
           isLoading={isSignSEP10cChallengePending}

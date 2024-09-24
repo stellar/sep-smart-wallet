@@ -1,29 +1,26 @@
 import { Alert, Button, Heading } from "@stellar/design-system";
-import { Keypair } from "@stellar/stellar-sdk";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 import { Box } from "@/components/layout/Box";
-import { C_ACCOUNT_ED25519_SIGNER, STELLAR, TOKEN_CONTRACT } from "@/config/settings";
+import { STELLAR } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useBalance } from "@/query/useBalance";
 import { useTransfer } from "@/query/useTransfer";
-import { ContractSigner, TokenInfo } from "@/types/types";
+import { useTokenStore } from "@/store/useTokenStore";
+import { useContractSignerStore } from "@/store/useContractSignerStore";
 
 export const TokenDebugPage = () => {
-  const accountSigner: ContractSigner = {
-    addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
-    method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
-  };
-
-  const tokenInfo: TokenInfo = {
-    contractId: TOKEN_CONTRACT.NATIVE,
-    name: "XLM",
-  };
-
-  const { contractId, name: tokenName } = tokenInfo;
-
   const navigate = useNavigate();
+
+  const { contractSigner } = useContractSignerStore();
+  const { tokenInfo } = useTokenStore();
+  useEffect(() => {
+    if (!contractSigner || !tokenInfo) {
+      navigate("/");
+    }
+  }, []);
 
   const {
     data: fetchBalanceResponse,
@@ -62,7 +59,7 @@ export const TokenDebugPage = () => {
           <Alert variant="success" placement="inline" title={title}>{`Balance: ${formatBigIntWithDecimals(
             balance,
             7,
-          )} ${tokenName}`}</Alert>
+          )} ${tokenInfo?.name}`}</Alert>
         ) : null}
 
         {fetchBalanceError ? (
@@ -108,14 +105,14 @@ export const TokenDebugPage = () => {
           onClick={() => {
             resetSendTransfer();
             fetchBalance({
-              accountId: accountSigner.addressId,
-              contractId,
+              accountId: contractSigner!.addressId,
+              contractId: tokenInfo!.contractId,
             });
           }}
           isLoading={isFetchBalancePending}
           disabled={isSendTransferPending}
         >
-          Invoke {tokenName} balance
+          Invoke {tokenInfo?.name} balance
         </Button>
         <Button
           size="md"
@@ -123,17 +120,17 @@ export const TokenDebugPage = () => {
           onClick={() => {
             resetFetchBalance();
             sendTransfer({
-              contractId,
-              fromAccId: accountSigner.addressId,
+              contractId: tokenInfo!.contractId,
+              fromAccId: contractSigner!.addressId,
               toAccId: toAcc,
               amount: stroopsAmount.toString(),
-              signer: accountSigner,
+              signer: contractSigner!,
             });
           }}
           isLoading={isSendTransferPending}
           disabled={isFetchBalancePending}
         >
-          Transfer {amount} {tokenName} to {toAccTruncated}
+          Transfer {amount} {tokenInfo?.name} to {toAccTruncated}
         </Button>
 
         <Button

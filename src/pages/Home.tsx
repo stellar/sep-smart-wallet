@@ -3,32 +3,37 @@ import { Keypair } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
-import { C_ACCOUNT_ED25519_SIGNER } from "@/config/settings";
-import { ContractSigner } from "@/types/types";
+import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
+import { useContractSignerStore } from "@/store/useContractSignerStore";
+import { useTokenStore } from "@/store/useTokenStore";
+import { useEffect } from "react";
+
 // import { PassKeyManager } from "@/components/PassKeyManager";
 
 export const Home = () => {
-  const accountSigner: ContractSigner = {
-    addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
-    method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
-  };
+  // Populate Store with default values
+  const { contractSigner, setContractSigner } = useContractSignerStore();
+  const { tokenInfo, setTokenInfo } = useTokenStore();
+  useEffect(() => {
+    setContractSigner({
+      addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
+      method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
+    });
 
-  // const b32 = Keypair.fromPublicKey("GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5")
-  //   .rawPublicKey()
-  //   .toString("hex");
-  // console.log(b32);
+    setTokenInfo({
+      contractId: TOKEN_CONTRACT.NATIVE,
+      name: "XLM",
+    });
+  }, []);
 
   return (
     <Box gap="lg">
       <Heading size="md" as="h2">
-        {accountSigner.addressId}
-      </Heading>
-      <Heading size="md" as="h3">
-        XLM Balance
+        {contractSigner?.addressId || "No account selected"}
       </Heading>
       {/* <PassKeyManager accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} /> */}
       <RouterLink to="/token" variant="primary">
-        Token Debugger
+        Token Debugger ({tokenInfo?.name})
       </RouterLink>
       <RouterLink to="/sep10c" variant="primary">
         SEP-10c Debugger
