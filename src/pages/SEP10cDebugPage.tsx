@@ -114,7 +114,7 @@ export const SEP10cDebugPage = () => {
           variant="secondary"
           onClick={() => {
             getSEP10cChallenge({
-              account: contractSigner!.addressId,
+              address: contractSigner!.addressId,
             });
           }}
           isLoading={isGetSEP10cChallengePending}

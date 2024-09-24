@@ -5,9 +5,9 @@ import { GetSEP10cChallengeRequest, GetSEP10cChallengeResponse } from "@/types/t
 
 export const useGetSEP10cChallenge = () => {
   const mutation = useMutation<GetSEP10cChallengeResponse, Error, GetSEP10cChallengeRequest>({
-    mutationFn: async ({ account: address }: GetSEP10cChallengeRequest) => {
+    mutationFn: async ({ address }: GetSEP10cChallengeRequest) => {
       const server = new SEP10cService();
-      return await server.getSEP10cChallenge({ account: address });
+      return await server.getSEP10cChallenge({ address });
     },
   });
 

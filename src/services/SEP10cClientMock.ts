@@ -18,27 +18,40 @@ import {
   GetSEP10cChallengeResponse,
   PostSEP10cChallengeRequest,
   PostSEP10cChallengeResponse,
+  SEP10cInfo,
+  SEP10cClient,
 } from "@/types/types";
 import { ERRORS } from "@/helpers/errors";
 
-export class SEP10cServer {
+export class SEP10cClientMock implements SEP10cClient {
   private sorobanService: SorobanService;
-  private contractId: string;
   private rpcClient: SorobanRpc.Server;
+  private sep10cInfo: SEP10cInfo;
 
   constructor() {
-    this.sorobanService = SorobanService.getInstance();
-    this.contractId = WEBAUTH_CONTRACT.ID;
+    this.sep10cInfo = {
+      signingKey: SEP10cServerKeypair.publicKey,
+      webAuthContractId: WEBAUTH_CONTRACT.ID,
+      webAuthEndpointC: "web_auth_verify",
+    };
     this.rpcClient = getSorobanClient(STELLAR.SOROBAN_RPC_URL);
+    this.sorobanService = SorobanService.getInstance();
   }
 
-  async fetchSEP10cGetChallenge(req: GetSEP10cChallengeRequest): Promise<GetSEP10cChallengeResponse> {
-    if (!req.account) {
+  async getSep10cInfo(): Promise<SEP10cInfo> {
+    return {
+      signingKey: SEP10cServerKeypair.publicKey,
+      webAuthContractId: WEBAUTH_CONTRACT.ID,
+    };
+  }
+
+  async getSEP10cChallenge(req: GetSEP10cChallengeRequest): Promise<GetSEP10cChallengeResponse> {
+    if (!req.address) {
       throw new Error("address is required");
     }
 
     const simResult = await this.sorobanService.simulateContract({
-      contractId: this.contractId,
+      contractId: this.sep10cInfo.webAuthContractId,
       method: WEBAUTH_CONTRACT.FN_NAME,
       args: [nativeToScVal(req)],
     });
@@ -61,7 +74,7 @@ export class SEP10cServer {
     return signature.toString("hex");
   }
 
-  async fetchSEP10cPostChallenge(req: PostSEP10cChallengeRequest): Promise<PostSEP10cChallengeResponse> {
+  async postSEP10cChallenge(req: PostSEP10cChallengeRequest): Promise<PostSEP10cChallengeResponse> {
     const authEntry = xdr.SorobanAuthorizationEntry.fromXDR(req.authorization_entry, "base64");
 
     // Verify the server signature

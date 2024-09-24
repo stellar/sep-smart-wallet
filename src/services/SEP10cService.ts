@@ -1,41 +1,47 @@
 import { Buffer } from "buffer";
 import { hash, Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 
-import { SEP10cServerKeypair, WEBAUTH_CONTRACT } from "@/config/settings";
-import { SEP10cServer } from "@/mocks/SEP10cServer";
+import { WEBAUTH_CONTRACT } from "@/config/settings";
 import {
   ContractSigner,
   GetSEP10cChallengeRequest,
   GetSEP10cChallengeResponse,
   PostSEP10cChallengeRequest,
+  SEP10cClient,
 } from "@/types/types";
 import { ScConvert } from "@/helpers/ScConvert";
 import { SorobanService } from "@/services/SorobanService";
+import { SEP10cClientMock } from "@/services/SEP10cClientMock";
 
 export type SEP10cChallengeValidationData = {
-  ContractID: string;
-  FunctionName: string;
-  PublicKey: string;
+  contractId: string;
+  functionName: string;
+  signingKey: string;
 };
 
 export class SEP10cService {
-  private server: SEP10cServer;
-  private validationData: SEP10cChallengeValidationData;
+  private client: SEP10cClient;
+  private _validationData?: SEP10cChallengeValidationData;
   private sorobanService: SorobanService;
 
   constructor() {
-    this.server = new SEP10cServer();
-    this.validationData = {
-      ContractID: WEBAUTH_CONTRACT.ID,
-      FunctionName: WEBAUTH_CONTRACT.FN_NAME,
-      PublicKey: SEP10cServerKeypair.publicKey,
-    };
+    this.client = new SEP10cClientMock();
     this.sorobanService = SorobanService.getInstance();
   }
 
-  public withValidationData(data: SEP10cChallengeValidationData) {
-    this.validationData = data;
-    return this;
+  private async getValidationData(): Promise<SEP10cChallengeValidationData> {
+    if (this._validationData) {
+      return this._validationData;
+    }
+
+    const sep10cInfo = await this.client.getSep10cInfo();
+    this._validationData = {
+      contractId: sep10cInfo.webAuthContractId,
+      functionName: WEBAUTH_CONTRACT.FN_NAME,
+      signingKey: sep10cInfo.signingKey,
+    };
+
+    return this._validationData;
   }
 
   public withSorobanService(sorobanService: SorobanService) {
@@ -43,8 +49,9 @@ export class SEP10cService {
     return this;
   }
 
-  public withSEP10cServer(server: SEP10cServer) {
-    this.server = server;
+  public withSEP10cClient(client: SEP10cClient) {
+    this.client = client;
+    this._validationData = undefined;
     return this;
   }
 
@@ -55,7 +62,7 @@ export class SEP10cService {
    * @returns A promise that resolves with the response from the server.
    */
   async getSEP10cChallenge(req: GetSEP10cChallengeRequest): Promise<GetSEP10cChallengeResponse> {
-    const resp = await this.server.fetchSEP10cGetChallenge(req);
+    const resp = await this.client.getSEP10cChallenge(req);
 
     this.validateSEP10cChallengeResponse(req, resp);
 
@@ -77,7 +84,7 @@ export class SEP10cService {
       entry = authEntry;
     }
 
-    const contractId = this.validationData.ContractID;
+    const { contractId } = await this.getValidationData();
 
     const signedEntry = await this.sorobanService.signAuthEntry({ contractId, entry, signer });
 
@@ -91,7 +98,7 @@ export class SEP10cService {
    * @returns A promise that resolves to the JWT token.
    */
   async postSEP10cChallenge(req: PostSEP10cChallengeRequest) {
-    const { token } = await this.server.fetchSEP10cPostChallenge(req);
+    const { token } = await this.client.postSEP10cChallenge(req);
 
     return token;
   }
@@ -104,7 +111,7 @@ export class SEP10cService {
    * @throws {Error} If server_signature is invalid.
    * @throws {Error} If authorization_entry is invalid.
    */
-  private validateSEP10cChallengeResponse(req: GetSEP10cChallengeRequest, resp: GetSEP10cChallengeResponse) {
+  private async validateSEP10cChallengeResponse(req: GetSEP10cChallengeRequest, resp: GetSEP10cChallengeResponse) {
     const { authorization_entry, server_signature } = resp;
 
     if (!authorization_entry) {
@@ -117,8 +124,14 @@ export class SEP10cService {
 
     const sorobanAuthEntry = xdr.SorobanAuthorizationEntry.fromXDR(authorization_entry, "base64");
 
+    const {
+      contractId: wantContractId,
+      functionName: wantFunctionName,
+      signingKey: wantSigningKey,
+    } = await this.getValidationData();
+
     // validate signature:
-    const serverKP = Keypair.fromPublicKey(this.validationData.PublicKey);
+    const serverKP = Keypair.fromPublicKey(wantSigningKey);
     const entryHash = hash(sorobanAuthEntry.toXDR());
     const isSigCorrect = serverKP.verify(entryHash, Buffer.from(server_signature, "hex"));
     if (!isSigCorrect) {
@@ -129,14 +142,14 @@ export class SEP10cService {
 
     // validate contractID:
     const contractID = ScConvert.contractID(contractFn.contractAddress());
-    if (contractID !== this.validationData.ContractID) {
-      throw new Error(`contractID is invalid! Expected: ${this.validationData.ContractID} but got: ${contractID}`);
+    if (contractID !== wantContractId) {
+      throw new Error(`contractID is invalid! Expected: ${wantContractId} but got: ${contractID}`);
     }
 
     // validate functionName:
     const fnName = contractFn.functionName().toString();
-    if (fnName !== this.validationData.FunctionName) {
-      throw new Error(`functionName is invalid! Expected: ${this.validationData.FunctionName} but got: ${fnName}`);
+    if (fnName !== wantFunctionName) {
+      throw new Error(`functionName is invalid! Expected: ${wantFunctionName} but got: ${fnName}`);
     }
 
     // validate args:
@@ -145,8 +158,8 @@ export class SEP10cService {
       throw new Error(`args is length is invalid! Expected: 1 but got: ${scVals.length}`);
     }
     let args: { [key: string]: string } = scValToNative(scVals[0]);
-    if (req.account !== args["account"]) {
-      throw new Error(`account is invalid! Expected: ${req.account} but got: ${args["account"]}`);
+    if (req.address !== args["address"]) {
+      throw new Error(`address is invalid! Expected: ${req.address} but got: ${args["address"]}`);
     }
 
     if (req.client_domain !== args["client_domain"]) {

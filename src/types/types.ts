@@ -17,7 +17,7 @@ export type SorobanEntryAddress = {
 };
 
 export type GetSEP10cChallengeRequest = {
-  account: string;
+  address: string;
   memo?: string;
   home_domain?: string;
   client_domain?: string;
@@ -50,4 +50,16 @@ export type TokenInfo = {
 export type Wallet = {
   keyId: string;
   contractId: string;
+};
+
+export interface SEP10cClient {
+  getSep10cInfo: () => Promise<SEP10cInfo>;
+  getSEP10cChallenge: (req: GetSEP10cChallengeRequest) => Promise<GetSEP10cChallengeResponse>;
+  postSEP10cChallenge: (req: PostSEP10cChallengeRequest) => Promise<PostSEP10cChallengeResponse>;
+}
+
+export type SEP10cInfo = {
+  signingKey: string;
+  webAuthContractId: string;
+  webAuthEndpointC?: string;
 };

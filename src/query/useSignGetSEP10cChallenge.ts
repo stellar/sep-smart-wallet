@@ -1,8 +1,8 @@
+import { xdr } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
 import { SEP10cService } from "@/services/SEP10cService";
 import { ContractSigner } from "@/types/types";
-import { xdr } from "@stellar/stellar-sdk";
 
 type SignAuthEntryProps = {
   authEntry: string | xdr.SorobanAuthorizationEntry;
