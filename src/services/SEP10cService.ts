@@ -11,7 +11,7 @@ import {
 } from "@/types/types";
 import { ScConvert } from "@/helpers/ScConvert";
 import { SorobanService } from "@/services/SorobanService";
-import { SEP10cClientMock } from "@/services/SEP10cClientMock";
+import { SEP10cClientMock } from "@/services/clients/SEP10cClientMock";
 
 export type SEP10cChallengeValidationData = {
   contractId: string;

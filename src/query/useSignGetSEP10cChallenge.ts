@@ -2,7 +2,7 @@ import { xdr } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
 import { SEP10cService } from "@/services/SEP10cService";
-import { SEP10cClientToml } from "@/services/SEP10cClientToml";
+import { SEP10cClientToml } from "@/services/clients/SEP10cClientToml";
 import { ContractSigner } from "@/types/types";
 
 type SignAuthEntryProps = {

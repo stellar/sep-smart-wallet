@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 
 import { SEP10cService } from "@/services/SEP10cService";
 import { PostSEP10cChallengeRequest } from "@/types/types";
-import { SEP10cClientToml } from "@/services/SEP10cClientToml";
+import { SEP10cClientToml } from "@/services/clients/SEP10cClientToml";
 
 export const usePostSEP10cChallenge = () => {
   const mutation = useMutation<string, Error, PostSEP10cChallengeRequest>({
