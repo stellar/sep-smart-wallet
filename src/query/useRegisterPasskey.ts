@@ -11,8 +11,8 @@ type RegisterPasskeyArgs = {
 export const useRegisterPasskey = () => {
   const mutation = useMutation<Wallet, Error, RegisterPasskeyArgs>({
     mutationFn: async ({ projectName, userName }: RegisterPasskeyArgs) => {
-      const pksManager = SmartWalletService.getInstance();
-      return await pksManager.createPasskeyContract(projectName, userName);
+      const swService = SmartWalletService.getInstance();
+      return await swService.createPasskeyContract(projectName, userName);
     },
   });
 

@@ -57,6 +57,30 @@ export class SmartWalletService {
     const contractId = Address.fromScVal(successResp.returnValue!).toString();
     this.wallet = { keyId: base64url(keyId), contractId };
 
+    console.warn("createPasskeyContract's keyId: ", this.wallet?.keyId);
+
+    return this.wallet;
+  }
+
+  public async connectPasskey(): Promise<Wallet> {
+    const keyId = await this.passkeyService.connectPasskey();
+    if (!keyId) {
+      throw new Error("No `keyId` was found");
+    }
+
+    const keyIdBuffer = base64url.toBuffer(keyId);
+    console.warn("connectPasskey's keyId: ", keyId);
+
+    const { simulationResponse } = await this.sorobanService.simulateContract({
+      contractId: this.WebAuthnFactoryContractID,
+      method: "get_address",
+      args: [xdr.ScVal.scvBytes(keyIdBuffer)],
+    });
+
+    const contractId = Address.fromScVal(simulationResponse.result!.retval).toString();
+
+    this.wallet = { keyId, contractId };
+
     return this.wallet;
   }
 }

@@ -1,5 +1,5 @@
 import { AuthenticatorAttestationResponseJSON } from "@simplewebauthn/types";
-import { startRegistration } from "@simplewebauthn/browser";
+import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 import { Buffer } from "buffer";
 
 import { PROJECT } from "@/config/settings";
@@ -21,52 +21,40 @@ export class PasskeyService {
 
   constructor() {
     this.domain = PROJECT.DOMAIN;
-
     console.log(`PasskeyService initialized with domain: ${this.domain}`);
   }
 
   public withDomain(domain: string): PasskeyService {
     this.domain = domain;
-
     console.log(`PasskeyService domain set to:  ${this.domain}`);
     return this;
   }
 
-  public async registerPasskey(
-    app: string,
-    user: string,
-    settings?: {
-      rpId?: string;
-      authenticatorSelection?: AuthenticatorSelectionCriteria;
-    },
-  ) {
+  public async registerPasskey(app: string, user: string) {
     console.log(`registerPasskey: ${app} — ${user}`);
     const now = new Date();
     const displayName = `${user} — ${now.toLocaleString()}`;
-    const { rpId, authenticatorSelection } = settings || {};
     const { id, response } = await startRegistration({
       challenge: base64url("stellaristhebetterblockchain"),
       rp: {
-        id: rpId,
-        name: app,
+        name: this.domain,
+        id: this.domain,
       },
       user: {
-        id: base64url(`${user}:${now.getTime()}:${Math.random()}`),
-        name: user,
+        id: base64url(user),
+        name: displayName,
         displayName,
       },
-      authenticatorSelection,
-      // authenticatorSelection: {
-      //     requireResidentKey: false,
-      //     residentKey: "preferred",
-      //     userVerification: "discouraged",
-      // },
+      authenticatorSelection: {
+        authenticatorAttachment: "platform", // Force the browser to use platform authenticators only
+        residentKey: "preferred", // Store passkeys on the device for easier re-authentication
+        userVerification: "required", // Require user verification to ensure security
+      },
       pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-      // attestation: "none",
-      // timeout: 120_000,
+      attestation: "none",
     });
 
-    if (!this.keyId) this.keyId = id;
+    this.keyId = base64url(id);
 
     return {
       keyId: base64url.toBuffer(id),
@@ -120,5 +108,16 @@ export class PasskeyService {
     console.log("publicKey string: ", base64url(Buffer.from(publicKey)));
 
     return publicKey;
+  }
+
+  public async connectPasskey() {
+    const authResponse = await startAuthentication({
+      challenge: base64url("stellaristhebetterblockchain"),
+      rpId: this.domain,
+    });
+
+    console.log("authResponse: ", authResponse);
+    this.keyId = authResponse.id;
+    return this.keyId;
   }
 }
