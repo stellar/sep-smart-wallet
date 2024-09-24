@@ -46,3 +46,8 @@ export type TokenInfo = {
   name: string;
   contractId: string;
 };
+
+export type Wallet = {
+  keyId: string;
+  contractId: string;
+};

@@ -41,7 +41,7 @@ export const PassKeyDebugPage = () => {
 
         {registerPasskeyResponse ? (
           <Alert variant="success" placement="inline" title={"Success!"}>
-            {`✅ Passkey Registered (ContractID: ${registerPasskeyResponse})`}
+            {`✅ Passkey Registered (ContractID: ${registerPasskeyResponse.contractId}, KeyID: ${registerPasskeyResponse.keyId})`}
           </Alert>
         ) : null}
       </>

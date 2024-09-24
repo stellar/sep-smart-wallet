@@ -32,13 +32,6 @@ export class PasskeyService {
     return this;
   }
 
-  // const user = prompt("Give this passkey a name");
-  // const {
-  //     keyId: kid,
-  //     contractId: cid,
-  //     xdr,
-  // } = await account.createWallet("Super Peach", user);
-  // const { keyId, publicKey } = await this.createKey(app, user)
   public async registerPasskey(
     app: string,
     user: string,
@@ -47,10 +40,7 @@ export class PasskeyService {
       authenticatorSelection?: AuthenticatorSelectionCriteria;
     },
   ) {
-    const bstr = Buffer.from("ladies and gentlemen we are floating in space").toString("base64");
-    console.log(bstr);
-
-    console.log("user: ", user);
+    console.log(`registerPasskey: ${app} — ${user}`);
     const now = new Date();
     const displayName = `${user} — ${now.toLocaleString()}`;
     const { rpId, authenticatorSelection } = settings || {};
@@ -62,7 +52,7 @@ export class PasskeyService {
       },
       user: {
         id: base64url(`${user}:${now.getTime()}:${Math.random()}`),
-        name: displayName,
+        name: user,
         displayName,
       },
       authenticatorSelection,

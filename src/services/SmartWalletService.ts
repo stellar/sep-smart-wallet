@@ -5,6 +5,7 @@ import { PASSKEY_CONTRACT } from "@/config/settings";
 import base64url from "@/helpers/base64url";
 import { PasskeyService } from "@/services/PasskeyService";
 import { SorobanService } from "@/services/SorobanService";
+import { Wallet } from "@/types/types";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
@@ -19,6 +20,8 @@ export class SmartWalletService {
   private passkeyService: PasskeyService;
   private sorobanService: SorobanService;
   private WebAuthnFactoryContractID = PASSKEY_CONTRACT.FACTORY;
+
+  public wallet?: Wallet;
 
   constructor() {
     this.passkeyService = PasskeyService.getInstance();
@@ -35,7 +38,7 @@ export class SmartWalletService {
     return this;
   }
 
-  public async createPasskeyContract(app: string, user: string): Promise<string> {
+  public async createPasskeyContract(app: string, user: string): Promise<Wallet> {
     const { keyId, publicKey } = await this.passkeyService.registerPasskey(app, user);
 
     console.log(
@@ -51,8 +54,9 @@ export class SmartWalletService {
     });
 
     const successResp = await this.sorobanService.callContract({ tx, simulationResponse });
-    console.log("simulation return value: ", Address.fromScVal(simulationResponse.result!.retval).toString());
-    console.log("execution return value: ", Address.fromScVal(successResp.returnValue!).toString());
-    return Address.fromScVal(successResp.returnValue!).toString();
+    const contractId = Address.fromScVal(successResp.returnValue!).toString();
+    this.wallet = { keyId: base64url(keyId), contractId };
+
+    return this.wallet;
   }
 }
