@@ -9,13 +9,14 @@ import { ContractSigner } from "@/types/types";
 import { useSignGetSEP10cChallenge } from "@/query/useSignGetSEP10cChallenge";
 import { usePostSEP10cChallenge } from "@/query/usePostSEP10cChallenge";
 
-export const SEP10cDebugger = () => {
+export const SEP10cDebugPage = () => {
   const accountSigner: ContractSigner = {
     addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
     method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
   };
 
   const navigate = useNavigate();
+
   const {
     data: getSEP10cChallengeResponse,
     mutate: getSEP10cChallenge,

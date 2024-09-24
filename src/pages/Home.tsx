@@ -1,24 +1,13 @@
 import { Heading } from "@stellar/design-system";
 import { Keypair } from "@stellar/stellar-sdk";
 
-import { AccountBalance } from "@/components/AccountBalance";
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
-import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
+import { C_ACCOUNT_ED25519_SIGNER } from "@/config/settings";
 import { ContractSigner } from "@/types/types";
 // import { PassKeyManager } from "@/components/PassKeyManager";
 
-type TokenInfo = {
-  name: string;
-  contractId: string;
-};
-
 export const Home = () => {
-  const tokenInfo: TokenInfo = {
-    contractId: TOKEN_CONTRACT.NATIVE,
-    name: "XLM",
-  };
-
   const accountSigner: ContractSigner = {
     addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
     method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
@@ -37,10 +26,12 @@ export const Home = () => {
       <Heading size="md" as="h3">
         XLM Balance
       </Heading>
-      <AccountBalance accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} />
       {/* <PassKeyManager accountSigner={accountSigner} contractId={tokenInfo.contractId} tokenName={tokenInfo.name} /> */}
-      <RouterLink to="/sep10c-debugger" variant="primary">
-        Go to SEP-10c Debugger
+      <RouterLink to="/token" variant="primary">
+        Token Debugger
+      </RouterLink>
+      <RouterLink to="/sep10c" variant="primary">
+        SEP-10c Debugger
       </RouterLink>
     </Box>
   );

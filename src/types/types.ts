@@ -41,3 +41,8 @@ export type PostSEP10cChallengeResponse = {
   // token is a jwt token
   token: string;
 };
+
+export type TokenInfo = {
+  name: string;
+  contractId: string;
+};

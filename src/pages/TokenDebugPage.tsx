@@ -1,26 +1,30 @@
-import { Alert, Button } from "@stellar/design-system";
+import { Alert, Button, Heading } from "@stellar/design-system";
+import { Keypair } from "@stellar/stellar-sdk";
+import { useNavigate } from "react-router-dom";
 
 import { Box } from "@/components/layout/Box";
-import { STELLAR, WEBAUTH_CONTRACT } from "@/config/settings";
+import { C_ACCOUNT_ED25519_SIGNER, STELLAR, TOKEN_CONTRACT } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useBalance } from "@/query/useBalance";
 import { useTransfer } from "@/query/useTransfer";
-import { ContractSigner } from "@/types/types";
-import { useWebAuth } from "@/query/useWebAuth";
-import { Keypair } from "@stellar/stellar-sdk";
+import { ContractSigner, TokenInfo } from "@/types/types";
 
-interface AccountBalanceProps {
-  accountSigner: ContractSigner;
-  contractId: string;
-  tokenName: string;
-}
+export const TokenDebugPage = () => {
+  const accountSigner: ContractSigner = {
+    addressId: C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY,
+    method: Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY),
+  };
 
-export const AccountBalance: React.FC<AccountBalanceProps> = ({
-  accountSigner,
-  contractId,
-  tokenName,
-}: AccountBalanceProps) => {
+  const tokenInfo: TokenInfo = {
+    contractId: TOKEN_CONTRACT.NATIVE,
+    name: "XLM",
+  };
+
+  const { contractId, name: tokenName } = tokenInfo;
+
+  const navigate = useNavigate();
+
   const {
     data: fetchBalanceResponse,
     mutate: fetchBalance,
@@ -37,23 +41,12 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     reset: resetSendTransfer,
   } = useTransfer();
 
-  const {
-    data: execWebAuthResponse,
-    mutate: execWebAuth,
-    error: execWebAuthError,
-    isPending: isExecWebAuthPending,
-    reset: resetExecWebAuth,
-  } = useWebAuth();
-
   const renderResponse = () => {
     if (sendTransferError !== null) {
       console.log(sendTransferError);
     }
     if (fetchBalanceError !== null) {
       console.log(fetchBalanceError);
-    }
-    if (execWebAuthError !== null) {
-      console.log(execWebAuthError);
     }
 
     const title =
@@ -72,14 +65,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           )} ${tokenName}`}</Alert>
         ) : null}
 
-        {execWebAuthResponse ? (
-          <Alert
-            variant="success"
-            placement="inline"
-            title="Success"
-          >{`WebAuth response successful? ${execWebAuthResponse}`}</Alert>
-        ) : null}
-
         {fetchBalanceError ? (
           <Alert variant="error" placement="inline" title="Error">{`Error invoking token balance: ${JSON.stringify(
             fetchBalanceError,
@@ -89,12 +74,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
         {sendTransferError ? (
           <Alert variant="error" placement="inline" title="Error">{`Error invoking transfer: ${JSON.stringify(
             sendTransferError,
-          )}`}</Alert>
-        ) : null}
-
-        {execWebAuthError ? (
-          <Alert variant="error" placement="inline" title="Error">{`Error invoking WebAuth: ${JSON.stringify(
-            execWebAuthError,
           )}`}</Alert>
         ) : null}
       </>
@@ -108,12 +87,25 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
 
   return (
     <Box gap="lg">
+      <Heading size="md" as="h2">
+        Token Debugger
+      </Heading>
+
       <Box gap="md" direction="row" align="center">
+        <Button
+          size="md"
+          variant="primary"
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          Back to Home
+        </Button>
+
         <Button
           size="md"
           variant="secondary"
           onClick={() => {
-            resetExecWebAuth();
             resetSendTransfer();
             fetchBalance({
               accountId: accountSigner.addressId,
@@ -129,7 +121,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           size="md"
           variant="secondary"
           onClick={() => {
-            resetExecWebAuth();
             resetFetchBalance();
             sendTransfer({
               contractId,
@@ -147,29 +138,10 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
 
         <Button
           size="md"
-          variant="secondary"
-          onClick={() => {
-            execWebAuth({
-              contractId: WEBAUTH_CONTRACT.ID,
-              signer: {
-                addressId: WEBAUTH_CONTRACT.SIGNER.PUBLIC_KEY,
-                method: Keypair.fromSecret(WEBAUTH_CONTRACT.SIGNER.PRIVATE_KEY),
-              },
-            });
-          }}
-          isLoading={isExecWebAuthPending}
-          disabled={isFetchBalancePending || isSendTransferPending}
-        >
-          WebAuth
-        </Button>
-
-        <Button
-          size="md"
           variant="tertiary"
           onClick={() => {
             resetFetchBalance();
             resetSendTransfer();
-            resetExecWebAuth();
           }}
           disabled={
             isFetchBalancePending ||

@@ -5,11 +5,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // Route pages
 import { App } from "@/App";
 import { Home } from "@/pages/Home";
-import { SEP10cDebugger } from "@/pages/SEP10cDebugger";
+import { SEP10cDebugPage } from "@/pages/SEP10cDebugPage";
+import { TokenDebugPage } from "@/pages/TokenDebugPage";
 
 // Styles
 import "@stellar/design-system/build/styles.min.css";
-import "./styles/global.scss";
+import "@/styles/global.scss";
 
 const router = createBrowserRouter([
   {
@@ -22,8 +23,12 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/sep10c-debugger",
-        element: <SEP10cDebugger />,
+        path: "/token",
+        element: <TokenDebugPage />,
+      },
+      {
+        path: "/sep10c",
+        element: <SEP10cDebugPage />,
       },
     ],
   },
