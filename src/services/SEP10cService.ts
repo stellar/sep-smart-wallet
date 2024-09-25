@@ -24,8 +24,8 @@ export class SEP10cService {
   private _validationData?: SEP10cChallengeValidationData;
   private sorobanService: SorobanService;
 
-  constructor() {
-    this.client = new SEP10cClientMock();
+  constructor(client: SEP10cClient = new SEP10cClientMock()) {
+    this.client = client;
     this.sorobanService = SorobanService.getInstance();
   }
 
@@ -64,7 +64,7 @@ export class SEP10cService {
   async getSEP10cChallenge(req: GetSEP10cChallengeRequest): Promise<GetSEP10cChallengeResponse> {
     const resp = await this.client.getSEP10cChallenge(req);
 
-    this.validateSEP10cChallengeResponse(req, resp);
+    await this.validateSEP10cChallengeResponse(req, resp);
 
     return resp;
   }
@@ -154,24 +154,12 @@ export class SEP10cService {
 
     // validate args:
     const scVals = contractFn.args();
-    if (scVals.length !== 1) {
-      throw new Error(`args is length is invalid! Expected: 1 but got: ${scVals.length}`);
+    if (scVals.length !== 6) {
+      throw new Error(`args is length is invalid! Expected: 6 but got: ${scVals.length}`);
     }
-    let args: { [key: string]: string } = scValToNative(scVals[0]);
-    if (req.address !== args["address"]) {
-      throw new Error(`address is invalid! Expected: ${req.address} but got: ${args["address"]}`);
-    }
-
-    if (req.client_domain !== args["client_domain"]) {
-      throw new Error(`client_domain is invalid! Expected: ${req.client_domain} but got: ${args["client_domain"]}`);
-    }
-
-    if (req.home_domain !== args["home_domain"]) {
-      throw new Error(`home_domain is invalid! Expected: ${req.home_domain} but got: ${args["home_domain"]}`);
-    }
-
-    if (req.memo !== args["memo"]) {
-      throw new Error(`memo is invalid! Expected: ${req.memo} but got: ${args["memo"]}`);
+    const gotAddress: string = scValToNative(scVals[0]);
+    if (req.address !== gotAddress) {
+      throw new Error(`address is invalid! Expected: ${req.address} but got: ${gotAddress}`);
     }
   }
 }

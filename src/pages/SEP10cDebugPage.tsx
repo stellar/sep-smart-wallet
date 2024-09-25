@@ -1,5 +1,5 @@
 import { Alert, Button, Heading } from "@stellar/design-system";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Box } from "@/components/layout/Box";
@@ -7,9 +7,23 @@ import { useGetSEP10cChallenge } from "@/query/useGetSEP10cChallenge";
 import { useSignGetSEP10cChallenge } from "@/query/useSignGetSEP10cChallenge";
 import { usePostSEP10cChallenge } from "@/query/usePostSEP10cChallenge";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
+import { SEP10cClient } from "@/types/types";
+import { SEP10cClientMock } from "@/services/clients/SEP10cClientMock";
+import { useTomlDomainStore } from "@/store/useTomlDomainStore";
+import { SEP10cClientToml } from "@/services/clients/SEP10cClientToml";
 
 export const SEP10cDebugPage = () => {
   const navigate = useNavigate();
+
+  const [sep10cClient, setSep10cClient] = useState<SEP10cClient>(new SEP10cClientMock());
+  const { tomlDomain } = useTomlDomainStore();
+  useEffect(() => {
+    if (!tomlDomain) {
+      setSep10cClient(new SEP10cClientMock());
+    } else {
+      setSep10cClient(new SEP10cClientToml(tomlDomain));
+    }
+  }, [tomlDomain]);
 
   const { contractSigner } = useContractSignerStore();
   useEffect(() => {
@@ -115,6 +129,7 @@ export const SEP10cDebugPage = () => {
           onClick={() => {
             getSEP10cChallenge({
               address: contractSigner!.addressId,
+              sep10cClient,
             });
           }}
           isLoading={isGetSEP10cChallengePending}
@@ -129,6 +144,7 @@ export const SEP10cDebugPage = () => {
             signSEP10cChallenge({
               authEntry: getSEP10cChallengeResponse!.authorization_entry,
               signer: contractSigner!,
+              sep10cClient,
             });
           }}
           isLoading={isSignSEP10cChallengePending}
@@ -142,9 +158,12 @@ export const SEP10cDebugPage = () => {
           variant="secondary"
           onClick={() => {
             postSEP10cChallenge({
-              authorization_entry: getSEP10cChallengeResponse!.authorization_entry,
-              server_signature: getSEP10cChallengeResponse!.server_signature,
-              credentials: [signSEP10cChallengeResponse!],
+              req: {
+                authorization_entry: getSEP10cChallengeResponse!.authorization_entry,
+                server_signature: getSEP10cChallengeResponse!.server_signature,
+                credentials: [signSEP10cChallengeResponse!],
+              },
+              sep10cClient,
             });
           }}
           isLoading={isPostSEP10cChallengePending}
