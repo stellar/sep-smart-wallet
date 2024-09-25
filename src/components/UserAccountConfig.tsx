@@ -21,7 +21,7 @@ export const UserAccountConfig = () => {
     <>
       <Box gap="lg">
         <Box gap="md" direction="row" align="center" justify="space-between">
-          <Heading size="md" as="h2">
+          <Heading size="md" as="h3">
             AccountID: {contractSigner?.addressId || "No account selected"}
           </Heading>
 
@@ -32,17 +32,28 @@ export const UserAccountConfig = () => {
               onClick={() => {
                 setDefaultSignerModalVisible(true);
               }}
-              disabled={false}
             >
               Set Default
             </Button>
+
+            <Button
+              size="md"
+              variant="secondary"
+              onClick={() => {
+                alert("TODO: not implemented yet");
+              }}
+              disabled={!contractSigner}
+            >
+              WebAuth
+            </Button>
+
             <Button
               size="md"
               variant="destructive"
               onClick={() => {
                 setClearSignerModalVisible(true);
               }}
-              disabled={false}
+              disabled={!contractSigner}
             >
               Clear
             </Button>
