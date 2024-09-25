@@ -1,9 +1,16 @@
-import { Layout } from "@stellar/design-system";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import { QueryProvider } from "@/query/QueryProvider";
+
 import { PROJECT } from "@/config/settings";
+import { QueryProvider } from "@/query/QueryProvider";
+import { Layout } from "@stellar/design-system";
 
 export const App = () => {
+  useEffect(() => {
+    // Set the document title using the environment variable
+    document.title = PROJECT.TITLE;
+  }, []);
+
   return (
     <QueryProvider>
       <Layout.Header
