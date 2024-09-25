@@ -1,6 +1,6 @@
-# Frontend Template
+# sep-smart-wallet
 
-Base project configuration for SDF frontend projects.
+A passkey-based smart wallet that is capable of interacting with the SEPs 10c and 24.
 
 ## Getting Started
 
