@@ -1,8 +1,10 @@
+import { PasskeyService } from "@/services/PasskeyService";
+import { AuthenticationResponseJSON } from "@simplewebauthn/types";
 import { Keypair, SigningCallback, SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
 
 export type ContractSigner = {
   addressId: string;
-  method: Keypair | SigningCallback;
+  method: Keypair | SigningCallback | PasskeyService;
 };
 
 export type SimulationResult = {
@@ -62,4 +64,9 @@ export type SEP10cInfo = {
   signingKey: string;
   webAuthContractId: string;
   webAuthEndpointC?: string;
+};
+
+export type PasscodeSignature = {
+  authenticationResponse: AuthenticationResponseJSON;
+  compactSignature: Buffer;
 };
