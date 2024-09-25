@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import { PROJECT } from "@/config/settings";
 import { QueryProvider } from "@/query/QueryProvider";
 import { Layout } from "@stellar/design-system";
+import { TomlDomainConfig } from "./components/TomlDomainConfig";
 
 export const App = () => {
   useEffect(() => {
@@ -20,10 +21,13 @@ export const App = () => {
       />
       <Layout.Content>
         <Layout.Inset>
+          <TomlDomainConfig />
+        </Layout.Inset>
+        <Layout.Inset>
           <Outlet />
         </Layout.Inset>
       </Layout.Content>
-      <Layout.Footer />
+      <Layout.Footer></Layout.Footer>
     </QueryProvider>
   );
 };
