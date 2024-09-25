@@ -5,6 +5,8 @@ import { PROJECT } from "@/config/settings";
 import { QueryProvider } from "@/query/QueryProvider";
 import { Layout } from "@stellar/design-system";
 import { TomlDomainConfig } from "./components/TomlDomainConfig";
+import { UserAccountConfig } from "./components/UserAccountConfig";
+import { Box } from "./components/layout/Box";
 
 export const App = () => {
   useEffect(() => {
@@ -20,12 +22,15 @@ export const App = () => {
         hasThemeSwitch
       />
       <Layout.Content>
-        <Layout.Inset>
-          <TomlDomainConfig />
-        </Layout.Inset>
-        <Layout.Inset>
-          <Outlet />
-        </Layout.Inset>
+        <Box gap="xxl" direction="column">
+          <Layout.Inset>
+            <TomlDomainConfig />
+            <UserAccountConfig />
+          </Layout.Inset>
+          <Layout.Inset>
+            <Outlet />
+          </Layout.Inset>
+        </Box>
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
     </QueryProvider>
