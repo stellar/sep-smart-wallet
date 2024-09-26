@@ -1,6 +1,8 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 import { ContractSigner } from "@/types/types";
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 interface ContractSignerStore {
   contractSigner: ContractSigner | null;
@@ -8,37 +10,34 @@ interface ContractSignerStore {
 }
 
 // Create the Zustand store with TypeScript types
-export const useContractSignerStore = create<ContractSignerStore>((set) => ({
-  contractSigner: null,
-  setContractSigner: (signer: ContractSigner | null) => set({ contractSigner: signer }),
-}));
+// export const useContractSignerStore = create<ContractSignerStore>((set) => ({
+//   contractSigner: null,
+//   setContractSigner: (signer: ContractSigner | null) => set({ contractSigner: signer }),
+// }));
 
-// {
+// Create the Zustand store with TypeScript types
+export const useContractSignerStore = create<ContractSignerStore>()(
+  persist(
+    (set) => ({
+      contractSigner: null,
+      setContractSigner: (contractSigner: ContractSigner | null) => set({ contractSigner }),
+    }),
+    {
+      name: "ssw:contractSigner", // Unique name for the localStorage key
+      storage: createJSONStorage(() => sessionStorage, {
+        // we need to implement a custom revive function to make sure the AuthEntrySigner is correctly deserialized:
+        reviver: (_, value) => {
+          const valueAny = value as any;
 
-// replacer: (_, value) => {
-//   if (value instanceof Keypair || value instanceof PasskeyService || typeof value === "function") {
-//     const methodType =
-//       value instanceof Keypair
-//         ? "Keypair"
-//         : value instanceof PasskeyService
-//         ? "PasskeyService"
-//         : "SigningCallback";
-//     return { type: methodType, value: JSON.stringify(value) };
-//   }
-//   return value;
-// },
-// reviver: (_, value) => {
-//   const valueAny = value as any;
-//   console.log("value: ", value);
-//   if (value && valueAny?.type === "Keypair") {
-//     const kp = JSON.parse(valueAny.value) as Keypair;
-//     console.log("Keypair: ", kp instanceof Keypair);
-//     return kp; // Return the Keypair object
-//   }
-//   if (value && valueAny?.type === "PasskeyService") {
-//     return JSON.parse(valueAny.value) as PasskeyService; // Return the PasskeyService object
-//   }
-//   if (value && valueAny?.type === "SigningCallback") {
-//     return JSON.parse(valueAny.value) as SigningCallback; // Return the SigningCallback object
-//   }
-//   return value; // Return unchanged for other types
+          if (valueAny?.type === "Keypair") {
+            return AuthEntrySigner.fromKeypairSecret(valueAny.keypairSecret);
+          } else if (valueAny?.type === "PasskeyService") {
+            return AuthEntrySigner.fromPasskeyKeyId(valueAny.passkeyKeyId);
+          }
+
+          return value;
+        },
+      }),
+    },
+  ),
+);

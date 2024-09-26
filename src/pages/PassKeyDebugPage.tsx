@@ -7,7 +7,6 @@ import { useRegisterPasskey } from "@/query/useRegisterPasskey";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useTokenStore } from "@/store/useTokenStore";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
-import { PasskeyService } from "@/services/PasskeyService";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 export const PassKeyDebugPage = () => {
