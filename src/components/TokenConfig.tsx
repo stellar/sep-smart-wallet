@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Alert, Button, Heading } from "@stellar/design-system";
+import { Alert, Button, Heading, Input, Modal, Notification } from "@stellar/design-system";
+import { StrKey } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
@@ -10,6 +11,7 @@ import { useBalance } from "@/query/useBalance";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useTransfer } from "@/query/useTransfer";
 import { useTokenStore } from "@/store/useTokenStore";
+import { TokenInfo } from "@/types/types";
 
 export const TokenConfig = () => {
   const defaultTokenContractId = TOKEN_CONTRACT.NATIVE;
@@ -19,6 +21,7 @@ export const TokenConfig = () => {
   const { tokenInfo, setTokenInfo } = useTokenStore();
 
   const [isDefaultTokenModalVisible, setDefaultTokenModalVisible] = useState(false);
+  const [isUpdateTokenModalVisible, setUpdateTokenModalVisible] = useState(false);
   const [isClearTokenModalVisible, setClearTokenModalVisible] = useState(false);
 
   const {
@@ -112,6 +115,16 @@ export const TokenConfig = () => {
 
             <Button
               size="md"
+              variant="primary"
+              onClick={() => {
+                setUpdateTokenModalVisible(true);
+              }}
+            >
+              Update
+            </Button>
+
+            <Button
+              size="md"
               variant="secondary"
               onClick={() => {
                 resetSendTransfer();
@@ -163,6 +176,17 @@ export const TokenConfig = () => {
         {defaultTokenContractId}) .
       </ConfirmationModal>
 
+      <UpdateTokenModal
+        visible={isUpdateTokenModalVisible}
+        onClose={() => setUpdateTokenModalVisible(false)}
+        onConfirm={(newTokenValue) => {
+          setUpdateTokenModalVisible(false);
+          resetFetchBalance();
+          resetSendTransfer();
+          setTokenInfo(newTokenValue);
+        }}
+      />
+
       <ConfirmationModal
         title="Clear token"
         visible={isClearTokenModalVisible}
@@ -177,5 +201,102 @@ export const TokenConfig = () => {
         Are you sure you want to clear the stored token?
       </ConfirmationModal>
     </>
+  );
+};
+
+interface UpdateTomlModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onConfirm: (newTokenValue: TokenInfo) => void;
+}
+
+const UpdateTokenModal: React.FC<UpdateTomlModalProps> = ({ visible, onClose, onConfirm }: UpdateTomlModalProps) => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const emptyTokenInfo: TokenInfo = { contractId: "", name: "" };
+
+  const [newTokenValue, setNewTokenValue] = useState<TokenInfo>(emptyTokenInfo);
+  const onTokenNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTokenValue({ ...newTokenValue, name: e.target.value.trim() });
+    setErrorMessage("");
+  };
+  const onTokenContractIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTokenValue({ ...newTokenValue, contractId: e.target.value.trim() });
+    setErrorMessage("");
+  };
+
+  useEffect(() => {
+    if (!visible) {
+      setNewTokenValue(emptyTokenInfo);
+      setErrorMessage("");
+    }
+  }, [visible]);
+
+  const handleCancel = () => {
+    setNewTokenValue(emptyTokenInfo);
+    setErrorMessage("");
+    onClose();
+  };
+
+  const handleConfirm = () => {
+    if (!StrKey.isValidContract(newTokenValue.contractId)) {
+      setErrorMessage("Invalid ContractID");
+      return;
+    } else if (newTokenValue.name.length < 1 || newTokenValue.name.length > 12) {
+      setErrorMessage("Name must be between 1 and 12 characters");
+      return;
+    }
+    onConfirm(newTokenValue);
+  };
+
+  return (
+    <Modal visible={visible} onClose={onClose}>
+      <Modal.Heading>Update Token Information</Modal.Heading>
+
+      <Modal.Body>
+        {errorMessage ? (
+          <Notification variant="error" title="Error">
+            {errorMessage}
+          </Notification>
+        ) : null}
+
+        <Input
+          id="tokenName"
+          fieldSize="md"
+          type="text"
+          label="Name"
+          placeholder="USDC"
+          value={newTokenValue.name}
+          onChange={onTokenNameChange}
+          error={!!errorMessage}
+        ></Input>
+
+        <Input
+          id="tokenContractId"
+          fieldSize="md"
+          type="text"
+          label="Contract ID"
+          placeholder="CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA"
+          value={newTokenValue.contractId}
+          onChange={onTokenContractIdChange}
+          error={!!errorMessage}
+        ></Input>
+      </Modal.Body>
+
+      <Modal.Footer>
+        <Button size="sm" variant="secondary" type="reset" onClick={handleCancel}>
+          Cancel
+        </Button>
+
+        <Button
+          size="sm"
+          variant="primary"
+          type="submit"
+          disabled={!newTokenValue || !!errorMessage}
+          onClick={handleConfirm}
+        >
+          Confirm
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
