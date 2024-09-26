@@ -15,8 +15,6 @@ export const UserAccountConfig = () => {
   // Populate Store with default values
   const { contractSigner, setContractSigner } = useContractSignerStore();
 
-  console.log("contractSigner type: ", contractSigner?.method instanceof Keypair);
-
   const [isDefaultSignerModalVisible, setDefaultSignerModalVisible] = useState(false);
   const [isClearSignerModalVisible, setClearSignerModalVisible] = useState(false);
 

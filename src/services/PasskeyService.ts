@@ -141,8 +141,6 @@ export class PasskeyService {
       // timeout: 120_000
     });
 
-    console.log("signPayload -- keyId: ", this.keyId);
-    console.log("signPayload -- authenticationResponse.id: ", authenticationResponse.id);
     const compactSignature = this.compactSignature(base64url.toBuffer(authenticationResponse.response.signature));
     return { authenticationResponse, compactSignature };
   }

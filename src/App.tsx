@@ -1,17 +1,28 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
-import { PROJECT } from "@/config/settings";
+import { PROJECT, TOKEN_CONTRACT } from "@/config/settings";
 import { QueryProvider } from "@/query/QueryProvider";
 import { Layout } from "@stellar/design-system";
 import { TomlDomainConfig } from "./components/TomlDomainConfig";
 import { UserAccountConfig } from "./components/UserAccountConfig";
 import { Box } from "./components/layout/Box";
+import { useTokenStore } from "./store/useTokenStore";
 
 export const App = () => {
   useEffect(() => {
     // Set the document title using the environment variable
     document.title = PROJECT.TITLE;
+  }, []);
+
+  const { tokenInfo, setTokenInfo } = useTokenStore();
+  useEffect(() => {
+    if (!tokenInfo) {
+      setTokenInfo({
+        contractId: TOKEN_CONTRACT.NATIVE,
+        name: "XLM",
+      });
+    }
   }, []);
 
   return (
