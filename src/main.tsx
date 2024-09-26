@@ -7,7 +7,6 @@ import { App } from "@/App";
 import { Home } from "@/pages/Home";
 import { PassKeyDebugPage } from "@/pages/PassKeyDebugPage";
 import { SEP10cDebugPage } from "@/pages/SEP10cDebugPage";
-import { TokenDebugPage } from "@/pages/TokenDebugPage";
 
 // Styles
 import "@stellar/design-system/build/styles.min.css";
@@ -22,10 +21,6 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
-      },
-      {
-        path: "/token",
-        element: <TokenDebugPage />,
       },
       {
         path: "/sep10c",
