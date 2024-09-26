@@ -1,10 +1,13 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import { Layout } from "@stellar/design-system";
 
 import { PROJECT } from "@/config/settings";
+import { Box } from "@/components/layout/Box";
+import { TokenConfig } from "@/components/TokenConfig";
+import { TomlDomainConfig } from "@/components/TomlDomainConfig";
+import { UserAccountConfig } from "@/components/UserAccountConfig";
 import { QueryProvider } from "@/query/QueryProvider";
-import { Layout } from "@stellar/design-system";
-import { TomlDomainConfig } from "./components/TomlDomainConfig";
 
 export const App = () => {
   useEffect(() => {
@@ -20,12 +23,16 @@ export const App = () => {
         hasThemeSwitch
       />
       <Layout.Content>
-        <Layout.Inset>
-          <TomlDomainConfig />
-        </Layout.Inset>
-        <Layout.Inset>
-          <Outlet />
-        </Layout.Inset>
+        <Box gap="xxl" direction="column">
+          <Layout.Inset>
+            <TomlDomainConfig />
+            <UserAccountConfig />
+            <TokenConfig />
+          </Layout.Inset>
+          <Layout.Inset>
+            <Outlet />
+          </Layout.Inset>
+        </Box>
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
     </QueryProvider>

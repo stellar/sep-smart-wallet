@@ -15,11 +15,11 @@ import { SEP10cClientToml } from "@/services/clients/SEP10cClientToml";
 export const SEP10cDebugPage = () => {
   const navigate = useNavigate();
 
-  const [sep10cClient, setSep10cClient] = useState<SEP10cClient>(new SEP10cClientMock());
+  const [sep10cClient, setSep10cClient] = useState<SEP10cClient>(SEP10cClientMock.getInstance());
   const { tomlDomain } = useTomlDomainStore();
   useEffect(() => {
     if (!tomlDomain) {
-      setSep10cClient(new SEP10cClientMock());
+      setSep10cClient(SEP10cClientMock.getInstance());
     } else {
       setSep10cClient(new SEP10cClientToml(tomlDomain));
     }
@@ -127,6 +127,8 @@ export const SEP10cDebugPage = () => {
           size="md"
           variant="secondary"
           onClick={() => {
+            resetSignSEP10cChallenge();
+            resetPostSEP10cChallenge();
             getSEP10cChallenge({
               address: contractSigner!.addressId,
               sep10cClient,
@@ -146,6 +148,7 @@ export const SEP10cDebugPage = () => {
               signer: contractSigner!,
               sep10cClient,
             });
+            resetPostSEP10cChallenge();
           }}
           isLoading={isSignSEP10cChallengePending}
           disabled={!getSEP10cChallengeResponse}

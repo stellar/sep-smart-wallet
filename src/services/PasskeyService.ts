@@ -19,9 +19,10 @@ export class PasskeyService {
   public domain: string;
   public keyId?: string;
 
-  constructor() {
+  constructor(keyId?: string) {
     this.domain = PROJECT.DOMAIN;
-    console.log(`PasskeyService initialized with domain: ${this.domain}`);
+    this.keyId = keyId;
+    console.log(`PasskeyService initialized with domain: ${this.domain} and keyId: ${this.keyId}`);
   }
 
   public withDomain(domain: string): PasskeyService {
@@ -119,5 +120,65 @@ export class PasskeyService {
     console.log("authResponse: ", authResponse);
     this.keyId = authResponse.id;
     return this.keyId;
+  }
+
+  public async signPayload(payload: Buffer) {
+    if (this.keyId === undefined) {
+      // TODO: maybe wire a connectWallet call here.
+      throw new Error("No keyId set. Please connect a passkey first.");
+    }
+    const rpId = this.domain;
+
+    const authenticationResponse = await startAuthentication({
+      challenge: base64url(payload),
+      rpId,
+      allowCredentials: [
+        {
+          id: this.keyId,
+          type: "public-key",
+        },
+      ],
+      // userVerification: "discouraged",
+      // timeout: 120_000
+    });
+
+    const compactSignature = this.compactSignature(base64url.toBuffer(authenticationResponse.response.signature));
+    return { authenticationResponse, compactSignature };
+  }
+
+  private compactSignature(signature: Buffer) {
+    // Decode the DER signature
+    let offset = 2;
+
+    const rLength = signature[offset + 1];
+    const r = signature.slice(offset + 2, offset + 2 + rLength);
+
+    offset += 2 + rLength;
+
+    const sLength = signature[offset + 1];
+    const s = signature.slice(offset + 2, offset + 2 + sLength);
+
+    // Convert r and s to BigInt
+    const rBigInt = BigInt("0x" + r.toString("hex"));
+    let sBigInt = BigInt("0x" + s.toString("hex"));
+
+    // Ensure s is in the low-S form
+    // https://github.com/stellar/stellar-protocol/discussions/1435#discussioncomment-8809175
+    // https://discord.com/channels/897514728459468821/1233048618571927693
+    // Define the order of the curve secp256r1
+    // https://github.com/RustCrypto/elliptic-curves/blob/master/p256/src/lib.rs#L72
+    const n = BigInt("0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
+    const halfN = n / 2n;
+
+    if (sBigInt > halfN) sBigInt = n - sBigInt;
+
+    // Convert back to buffers and ensure they are 32 bytes
+    const rPadded = Buffer.from(rBigInt.toString(16).padStart(64, "0"), "hex");
+    const sLowS = Buffer.from(sBigInt.toString(16).padStart(64, "0"), "hex");
+
+    // Concatenate r and low-s
+    const concatSignature = Buffer.concat([rPadded, sLowS]);
+
+    return concatSignature;
   }
 }

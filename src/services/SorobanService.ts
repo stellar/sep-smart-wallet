@@ -1,6 +1,5 @@
 import {
   Address,
-  authorizeEntry,
   Contract,
   Keypair,
   Operation,
@@ -9,15 +8,15 @@ import {
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-import { getSorobanClient } from "@/helpers/getSorobanClient";
+
 import { STELLAR } from "@/config/settings";
-import { ContractSigner, SimulationResult } from "@/types/types";
 import { ERRORS } from "@/helpers/errors";
+import { getSorobanClient } from "@/helpers/getSorobanClient";
 import { ScConvert } from "@/helpers/ScConvert";
+import { ContractSigner, SimulationResult } from "@/types/types";
 
 export class SorobanService {
   private static instance: SorobanService;
-
   public static getInstance(): SorobanService {
     if (!SorobanService.instance) {
       SorobanService.instance = new SorobanService();
@@ -96,11 +95,11 @@ export class SorobanService {
     );
 
     // Fetch the current contract ledger seq
-    let expirationLedgerSeq = 0;
+    let validUntilLedgerSeq = 0;
     const entryRes = await this.rpcClient.getLedgerEntries(ledgerKey);
     if (entryRes.entries && entryRes.entries.length) {
       // set auth entry to expire when contract data expires, but could any number of blocks in the future
-      expirationLedgerSeq = entryRes.entries[0].liveUntilLedgerSeq || 0;
+      validUntilLedgerSeq = entryRes.entries[0].liveUntilLedgerSeq || 0;
     } else {
       throw new Error(ERRORS.CANNOT_FETCH_LEDGER_ENTRY);
     }
@@ -125,8 +124,11 @@ export class SorobanService {
       //   signer.addressId,
       //   this.networkPassphrase,
       // );
-      const authEntry = await authorizeEntry(entry, signer.method, expirationLedgerSeq, this.networkPassphrase);
-      return authEntry;
+      return await signer.method.authorizeEntry({
+        entry,
+        validUntilLedgerSeq,
+        networkPassphrase: this.networkPassphrase,
+      });
     } catch (error) {
       throw new Error(`${ERRORS.UNABLE_TO_AUTHORIZE_ENTRY}: ${error}`);
     }
@@ -165,7 +167,7 @@ export class SorobanService {
 
     // Soroban transaction can only have 1 operation
     const rawInvokeHostFunctionOp = tx.operations[0] as Operation.InvokeHostFunction;
-    tx = TransactionBuilder.cloneFrom(tx)
+    const clonedTx = TransactionBuilder.cloneFrom(tx)
       .clearOperations()
       .addOperation(
         Operation.invokeHostFunction({
@@ -175,7 +177,7 @@ export class SorobanService {
       )
       .build();
 
-    return tx;
+    return clonedTx;
   }
 
   /**

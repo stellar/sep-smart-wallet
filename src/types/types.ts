@@ -1,8 +1,11 @@
-import { Keypair, SigningCallback, SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
+import { AuthenticationResponseJSON } from "@simplewebauthn/types";
+import { SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
+
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 export type ContractSigner = {
   addressId: string;
-  method: Keypair | SigningCallback;
+  method: AuthEntrySigner;
 };
 
 export type SimulationResult = {
@@ -62,4 +65,9 @@ export type SEP10cInfo = {
   signingKey: string;
   webAuthContractId: string;
   webAuthEndpointC?: string;
+};
+
+export type PasscodeSignature = {
+  authenticationResponse: AuthenticationResponseJSON;
+  compactSignature: Buffer;
 };

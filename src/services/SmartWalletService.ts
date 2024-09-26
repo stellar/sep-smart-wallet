@@ -69,7 +69,6 @@ export class SmartWalletService {
     }
 
     const keyIdBuffer = base64url.toBuffer(keyId);
-    console.warn("connectPasskey's keyId: ", keyId);
 
     const { simulationResponse } = await this.sorobanService.simulateContract({
       contractId: this.WebAuthnFactoryContractID,

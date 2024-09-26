@@ -7,14 +7,15 @@ import { useRegisterPasskey } from "@/query/useRegisterPasskey";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useTokenStore } from "@/store/useTokenStore";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 export const PassKeyDebugPage = () => {
   const navigate = useNavigate();
 
-  const { contractSigner } = useContractSignerStore();
+  const { setContractSigner } = useContractSignerStore();
   const { tokenInfo } = useTokenStore();
   useEffect(() => {
-    if (!contractSigner || !tokenInfo) {
+    if (!tokenInfo) {
       navigate("/");
     }
   }, []);
@@ -34,6 +35,15 @@ export const PassKeyDebugPage = () => {
     isPending: isConnectPasskeyPending,
     reset: resetConnectPasskey,
   } = useConnectPasskey();
+
+  useEffect(() => {
+    if (connectPasskeyResponse !== undefined) {
+      setContractSigner({
+        addressId: connectPasskeyResponse.contractId,
+        method: AuthEntrySigner.fromPasskeyKeyId(connectPasskeyResponse.keyId),
+      });
+    }
+  }, [connectPasskeyResponse]);
 
   // TODO: set contractSigner when we have the response
   // useEffect(() => {

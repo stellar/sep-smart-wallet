@@ -4,6 +4,7 @@ import { Box } from "@/components/layout/Box";
 import { useTomlDomainStore } from "@/store/useTomlDomainStore";
 import { useEffect, useState } from "react";
 import { Validate } from "@/helpers/Validate";
+import { ConfirmationModal } from "./ConfirmationModal";
 
 export const TomlDomainConfig = () => {
   const [isUpdateTomlModalVisible, setUpdateTomlModalVisible] = useState(false);
@@ -49,14 +50,17 @@ export const TomlDomainConfig = () => {
         }}
       />
 
-      <ResetTomlModal
+      <ConfirmationModal
+        title="Reset Toml Domain"
         visible={isResetTomlModalVisible}
         onClose={() => setResetTomlModalVisible(false)}
         onConfirm={() => {
           setResetTomlModalVisible(false);
           setTomlDomain(null);
         }}
-      />
+      >
+        Are you sure you want to reset the Toml domain?
+      </ConfirmationModal>
     </>
   );
 };
@@ -113,7 +117,7 @@ const UpdateTomlModal: React.FC<UpdateTomlModalProps> = ({ visible, onClose, onC
           fieldSize="md"
           type="text"
           label="Toml domain"
-          placeholder="http://localhost:8080"
+          placeholder="https://example.domain.com"
           value={newTomlValue}
           onChange={onTomlChange}
           error={!!errorMessage}
@@ -133,32 +137,6 @@ const UpdateTomlModal: React.FC<UpdateTomlModalProps> = ({ visible, onClose, onC
           onClick={handleConfirm}
         >
           Confirm
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  );
-};
-
-interface ResetTomlModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-}
-
-const ResetTomlModal: React.FC<ResetTomlModalProps> = ({ visible, onClose, onConfirm }: ResetTomlModalProps) => {
-  return (
-    <Modal visible={visible} onClose={onClose}>
-      <Modal.Heading>Reset Toml Domain</Modal.Heading>
-
-      <Modal.Body>Are you sure you want to reset the Toml domain?</Modal.Body>
-
-      <Modal.Footer>
-        <Button size="sm" variant="secondary" type="reset" onClick={onClose}>
-          Cancel
-        </Button>
-
-        <Button size="sm" variant="destructive" type="submit" onClick={onConfirm}>
-          Reset
         </Button>
       </Modal.Footer>
     </Modal>

@@ -24,7 +24,7 @@ export class SEP10cService {
   private _validationData?: SEP10cChallengeValidationData;
   private sorobanService: SorobanService;
 
-  constructor(client: SEP10cClient = new SEP10cClientMock()) {
+  constructor(client: SEP10cClient = SEP10cClientMock.getInstance()) {
     this.client = client;
     this.sorobanService = SorobanService.getInstance();
   }
