@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Box } from "@/components/layout/Box";
 import { useRegisterPasskey } from "@/query/useRegisterPasskey";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
-import { useTokenStore } from "@/store/useTokenStore";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
@@ -13,12 +12,6 @@ export const PassKeyDebugPage = () => {
   const navigate = useNavigate();
 
   const { setContractSigner } = useContractSignerStore();
-  const { tokenInfo } = useTokenStore();
-  useEffect(() => {
-    if (!tokenInfo) {
-      navigate("/");
-    }
-  }, []);
 
   const {
     data: registerPasskeyResponse,
@@ -44,16 +37,6 @@ export const PassKeyDebugPage = () => {
       });
     }
   }, [connectPasskeyResponse]);
-
-  // TODO: set contractSigner when we have the response
-  // useEffect(() => {
-  //   if (!!registerPasskeyResponse) {
-  //     setContractSigner({
-  //       addressId: registerPasskeyResponse,
-  //       method:
-  //     });
-  //   }
-  // }, [registerPasskeyResponse]);
 
   const renderResponse = () => {
     if (registerPasskeyError !== null) {
