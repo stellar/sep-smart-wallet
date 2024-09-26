@@ -150,7 +150,6 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           variant="secondary"
           onClick={() => {
             execWebAuth({
-              contractId: WEBAUTH_CONTRACT.ID,
               signer: {
                 addressId: WEBAUTH_CONTRACT.SIGNER.PUBLIC_KEY,
                 method: Keypair.fromSecret(WEBAUTH_CONTRACT.SIGNER.PRIVATE_KEY),

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 import { TokenInfo } from "@/types/types";
 
@@ -17,7 +17,7 @@ export const useTokenStore = create<TokenStore>()(
     }),
     {
       name: "ssw:tokenInfo", // Unique name for the localStorage key
-      getStorage: () => localStorage, // Choose storage type (localStorage here)
+      storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
     },
   ),
 );

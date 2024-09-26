@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 // Define the interface for your store
 interface TomlDomainStore {
@@ -16,7 +16,7 @@ export const useTomlDomainStore = create<TomlDomainStore>()(
     }),
     {
       name: "ssw:tomlDomain", // Unique name for the localStorage key
-      getStorage: () => localStorage, // Choose storage type (localStorage here)
+      storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
     },
   ),
 );
