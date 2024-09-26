@@ -105,25 +105,6 @@ export class SorobanService {
     }
 
     try {
-      // TODO: use this approach to sign SorobaanAuthorizedInvocation
-      // const contractFn = entry.rootInvocation().function().contractFn();
-      // const rootInvocation = new xdr.SorobanAuthorizedInvocation({
-      //   subInvocations: [],
-      //   function: xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
-      //     new xdr.InvokeContractArgs({
-      //       contractAddress: contractFn.contractAddress(),
-      //       functionName: contractFn.functionName(),
-      //       args: contractFn.args(),
-      //     }),
-      //   ),
-      // });
-      // const authEntry = await authorizeInvocation(
-      //   signer.method,
-      //   expirationLedgerSeq,
-      //   rootInvocation,
-      //   signer.addressId,
-      //   this.networkPassphrase,
-      // );
       return await signer.method.authorizeEntry({
         entry,
         validUntilLedgerSeq,
@@ -210,15 +191,9 @@ export class SorobanService {
       throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 1): ${simulationResponse}`);
     }
 
-    // Extract the Soroban authorization entry from the simulation
-    let authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? [];
-    if (authEntries.length === 0) {
-      console.log("No SorobanAuthorizationEntry found in the simulation response.");
-    }
-
     // Sign the entries if signers are provided
+    let authEntries: xdr.SorobanAuthorizationEntry[] = simulationResponse.result?.auth ?? [];
     if (signers && signers.length > 0) {
-      console.log("Custom signer detected. Signing with custom signer.");
       tx = await this.signAuthEntries({
         authEntries,
         signers,

@@ -30,7 +30,7 @@ export const UserAccountConfig = () => {
 
   const renderResponse = () => {
     if (execWebAuthError !== null) {
-      console.log(execWebAuthError);
+      console.error("execWebAuthError: ", execWebAuthError);
     }
 
     return (

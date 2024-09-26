@@ -40,7 +40,7 @@ export const PassKeyDebugPage = () => {
 
   const renderResponse = () => {
     if (registerPasskeyError !== null) {
-      console.log(registerPasskeyError);
+      console.error("registerPasskeyError: ", registerPasskeyError);
     }
 
     return (
@@ -94,7 +94,6 @@ export const PassKeyDebugPage = () => {
           variant="secondary"
           onClick={() => {
             const userName = prompt("Give this passkey a name", "passkey-marcelo-localhost");
-            console.log("userName", userName);
             if (userName) {
               registerPasskey({
                 projectName: "Meridian 2024 Smart Wallet!",
