@@ -57,7 +57,7 @@ export const UserAccountConfig = () => {
       <Box gap="lg">
         <Box gap="md" direction="row" align="center" justify="space-between">
           <Heading size="md" as="h3">
-            AccountID: {contractSigner?.addressId || "No account selected"}
+            AccountId: {contractSigner?.addressId || "No account selected"}
           </Heading>
 
           <Box gap="md" direction="row" align="center">

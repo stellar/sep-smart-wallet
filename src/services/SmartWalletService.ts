@@ -19,7 +19,7 @@ export class SmartWalletService {
 
   private passkeyService: PasskeyService;
   private sorobanService: SorobanService;
-  private WebAuthnFactoryContractID = PASSKEY_CONTRACT.FACTORY;
+  private WebAuthnFactoryContractId = PASSKEY_CONTRACT.FACTORY;
 
   public wallet?: Wallet;
 
@@ -42,7 +42,7 @@ export class SmartWalletService {
     const { keyId, publicKey } = await this.passkeyService.registerPasskey(app, user);
 
     const { tx, simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: this.WebAuthnFactoryContractID,
+      contractId: this.WebAuthnFactoryContractId,
       method: "deploy",
       args: [xdr.ScVal.scvBytes(hash(keyId)), xdr.ScVal.scvBytes(keyId), xdr.ScVal.scvBytes(publicKey)],
     });
@@ -68,7 +68,7 @@ export class SmartWalletService {
     const keyIdBuffer = base64url.toBuffer(keyId);
 
     const { simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: this.WebAuthnFactoryContractID,
+      contractId: this.WebAuthnFactoryContractId,
       method: "get_address",
       args: [xdr.ScVal.scvBytes(keyIdBuffer)],
     });

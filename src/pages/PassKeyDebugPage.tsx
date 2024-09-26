@@ -53,7 +53,7 @@ export const PassKeyDebugPage = () => {
 
         {registerPasskeyResponse ? (
           <Alert variant="success" placement="inline" title={"Success!"}>
-            {`✅ Passkey Registered (ContractID: ${registerPasskeyResponse.contractId}, KeyID: ${registerPasskeyResponse.keyId})`}
+            {`✅ Passkey Registered (ContractId: ${registerPasskeyResponse.contractId}, KeyID: ${registerPasskeyResponse.keyId})`}
           </Alert>
         ) : null}
 
@@ -65,7 +65,7 @@ export const PassKeyDebugPage = () => {
 
         {connectPasskeyResponse ? (
           <Alert variant="success" placement="inline" title={"Success!"}>
-            {`✅ Passkey Connected (ContractID: ${connectPasskeyResponse.contractId}, KeyID: ${connectPasskeyResponse.keyId})`}
+            {`✅ Passkey Connected (ContractId: ${connectPasskeyResponse.contractId}, KeyID: ${connectPasskeyResponse.keyId})`}
           </Alert>
         ) : null}
       </>

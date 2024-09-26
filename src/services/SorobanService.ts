@@ -39,7 +39,7 @@ export class SorobanService {
     this.sourceAccountKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY);
   }
 
-  public withSorobanRpcURL(sorobanRpcUrl: string): SorobanService {
+  public withSorobanRpcUrl(sorobanRpcUrl: string): SorobanService {
     this.rpcClient = getSorobanClient(sorobanRpcUrl);
     return this;
   }
