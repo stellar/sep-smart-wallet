@@ -1,10 +1,11 @@
-import { PasskeyService } from "@/services/PasskeyService";
 import { AuthenticationResponseJSON } from "@simplewebauthn/types";
-import { Keypair, SigningCallback, SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
+import { SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
+
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 export type ContractSigner = {
   addressId: string;
-  method: Keypair | SigningCallback | PasskeyService;
+  method: AuthEntrySigner;
 };
 
 export type SimulationResult = {

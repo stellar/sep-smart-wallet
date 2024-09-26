@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Alert, Button, Heading } from "@stellar/design-system";
-import { Keypair } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { C_ACCOUNT_ED25519_SIGNER } from "@/config/settings";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useWebAuth } from "@/query/useWebAuth";
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 export const UserAccountConfig = () => {
   const defaultSignerAddressId = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
-  const defaultSignerSigningMethod: Keypair = Keypair.fromSecret(C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY);
+  const defaultSignerSigningMethod: AuthEntrySigner = AuthEntrySigner.fromKeypairSecret(
+    C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY,
+  );
 
   // Populate Store with default values
   const { contractSigner, setContractSigner } = useContractSignerStore();

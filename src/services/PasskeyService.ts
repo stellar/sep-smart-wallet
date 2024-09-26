@@ -19,9 +19,10 @@ export class PasskeyService {
   public domain: string;
   public keyId?: string;
 
-  constructor() {
+  constructor(keyId?: string) {
     this.domain = PROJECT.DOMAIN;
-    console.log(`PasskeyService initialized with domain: ${this.domain}`);
+    this.keyId = keyId;
+    console.log(`PasskeyService initialized with domain: ${this.domain} and keyId: ${this.keyId}`);
   }
 
   public withDomain(domain: string): PasskeyService {

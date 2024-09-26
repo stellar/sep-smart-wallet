@@ -8,6 +8,7 @@ import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useTokenStore } from "@/store/useTokenStore";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
 import { PasskeyService } from "@/services/PasskeyService";
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
 export const PassKeyDebugPage = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export const PassKeyDebugPage = () => {
     if (connectPasskeyResponse !== undefined) {
       setContractSigner({
         addressId: connectPasskeyResponse.contractId,
-        method: PasskeyService.getInstance(),
+        method: AuthEntrySigner.fromPasskeyKeyId(connectPasskeyResponse.keyId),
       });
     }
   }, [connectPasskeyResponse]);

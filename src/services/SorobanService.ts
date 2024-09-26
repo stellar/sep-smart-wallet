@@ -1,26 +1,18 @@
-import { Buffer } from "buffer";
-
 import {
   Address,
-  authorizeEntry,
   Contract,
-  hash,
   Keypair,
   Operation,
-  SigningCallback,
   SorobanRpc,
   Transaction,
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
-import { DEFAULT_TIMEOUT } from "@stellar/stellar-sdk/contract";
 
 import { STELLAR } from "@/config/settings";
-import base64url from "@/helpers/base64url";
 import { ERRORS } from "@/helpers/errors";
 import { getSorobanClient } from "@/helpers/getSorobanClient";
 import { ScConvert } from "@/helpers/ScConvert";
-import { PasskeyService } from "@/services/PasskeyService";
 import { ContractSigner, SimulationResult } from "@/types/types";
 
 export class SorobanService {
@@ -132,9 +124,8 @@ export class SorobanService {
       //   signer.addressId,
       //   this.networkPassphrase,
       // );
-      return await this.authorizeEntry({
+      return await signer.method.authorizeEntry({
         entry,
-        signingMethod: signer.method,
         validUntilLedgerSeq,
         networkPassphrase: this.networkPassphrase,
       });
@@ -282,57 +273,6 @@ export class SorobanService {
 
     throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${txResponse}`);
   }
-
-  private async authorizeEntry({
-    entry,
-    signingMethod,
-    validUntilLedgerSeq,
-    networkPassphrase,
-  }: AuthorizeEntryProps): Promise<xdr.SorobanAuthorizationEntry> {
-    if (!(signingMethod instanceof PasskeyService)) {
-      return authorizeEntry(entry, signingMethod, validUntilLedgerSeq, networkPassphrase);
-    }
-
-    const ledgersToLive = DEFAULT_TIMEOUT;
-
-    const lastLedger = await this.rpcClient.getLatestLedger().then(({ sequence }) => sequence);
-    const credentials = entry.credentials().address();
-    const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-      new xdr.HashIdPreimageSorobanAuthorization({
-        networkId: hash(Buffer.from(this.networkPassphrase)),
-        nonce: credentials.nonce(),
-        signatureExpirationLedger: lastLedger + ledgersToLive,
-        invocation: entry.rootInvocation(),
-      }),
-    );
-    const payload = hash(preimage.toXDR());
-
-    const { compactSignature, authenticationResponse } = await signingMethod.signPayload(payload);
-
-    credentials.signatureExpirationLedger(lastLedger + ledgersToLive);
-    credentials.signature(
-      xdr.ScVal.scvMap([
-        new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol("authenticator_data"),
-          val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.response.authenticatorData)),
-        }),
-        new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol("client_data_json"),
-          val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.response.clientDataJSON)),
-        }),
-        new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol("id"),
-          val: xdr.ScVal.scvBytes(base64url.toBuffer(authenticationResponse.id)),
-        }),
-        new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol("signature"),
-          val: xdr.ScVal.scvBytes(compactSignature),
-        }),
-      ]),
-    );
-
-    return entry;
-  }
 }
 
 type SimulateContract = {
@@ -358,11 +298,4 @@ type SignAuthEntry = {
   contractId: string;
   entry: xdr.SorobanAuthorizationEntry;
   signer: ContractSigner;
-};
-
-type AuthorizeEntryProps = {
-  entry: xdr.SorobanAuthorizationEntry;
-  signingMethod: Keypair | SigningCallback | PasskeyService;
-  validUntilLedgerSeq: number;
-  networkPassphrase?: string;
 };
