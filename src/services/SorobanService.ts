@@ -25,7 +25,6 @@ import { ContractSigner, SimulationResult } from "@/types/types";
 
 export class SorobanService {
   private static instance: SorobanService;
-
   public static getInstance(): SorobanService {
     if (!SorobanService.instance) {
       SorobanService.instance = new SorobanService();

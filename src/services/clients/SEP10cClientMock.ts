@@ -11,7 +11,6 @@ import {
 
 import { SEP10cServerKeypair, STELLAR, WEBAUTH_CONTRACT } from "@/config/settings";
 import { ScConvert } from "@/helpers/ScConvert";
-import { getSorobanClient } from "@/helpers/getSorobanClient";
 import { SorobanService } from "@/services/SorobanService";
 import {
   GetSEP10cChallengeRequest,
@@ -24,6 +23,15 @@ import {
 import { ERRORS } from "@/helpers/errors";
 
 export class SEP10cClientMock implements SEP10cClient {
+  private static instance: SEP10cClientMock;
+  public static getInstance(): SEP10cClientMock {
+    if (!SEP10cClientMock.instance) {
+      SEP10cClientMock.instance = new SEP10cClientMock();
+    }
+
+    return SEP10cClientMock.instance;
+  }
+
   private sorobanService: SorobanService;
   private rpcClient: SorobanRpc.Server;
   private sep10cInfo: SEP10cInfo;
@@ -34,8 +42,8 @@ export class SEP10cClientMock implements SEP10cClient {
       webAuthContractId: WEBAUTH_CONTRACT.ID,
       webAuthEndpointC: "web_auth_verify",
     };
-    this.rpcClient = getSorobanClient(STELLAR.SOROBAN_RPC_URL);
     this.sorobanService = SorobanService.getInstance();
+    this.rpcClient = this.sorobanService.rpcClient;
   }
 
   async getSep10cInfo(): Promise<SEP10cInfo> {
