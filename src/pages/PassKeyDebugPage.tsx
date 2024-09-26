@@ -92,13 +92,15 @@ export const PassKeyDebugPage = () => {
         <Button
           size="md"
           variant="secondary"
-          onClick={() => {
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             const userName = prompt("Give this passkey a name", "passkey-marcelo-localhost");
             if (userName) {
               registerPasskey({
                 projectName: "Meridian 2024 Smart Wallet!",
                 userName,
               });
+            } else {
+              (e.target as HTMLButtonElement).blur();
             }
           }}
           isLoading={isRegisterPasskeyPending}
