@@ -19,7 +19,7 @@ export class SmartWalletService {
 
   private passkeyService: PasskeyService;
   private sorobanService: SorobanService;
-  private WebAuthnFactoryContractID = PASSKEY_CONTRACT.FACTORY;
+  private WebAuthnFactoryContractId = PASSKEY_CONTRACT.FACTORY;
 
   public wallet?: Wallet;
 
@@ -41,14 +41,8 @@ export class SmartWalletService {
   public async createPasskeyContract(app: string, user: string): Promise<Wallet> {
     const { keyId, publicKey } = await this.passkeyService.registerPasskey(app, user);
 
-    console.log(
-      `Successfully registered passkey with keyId: ${base64url(Buffer.from(keyId))} and publicKey: ${base64url(
-        Buffer.from(publicKey),
-      )}`,
-    );
-
     const { tx, simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: this.WebAuthnFactoryContractID,
+      contractId: this.WebAuthnFactoryContractId,
       method: "deploy",
       args: [xdr.ScVal.scvBytes(hash(keyId)), xdr.ScVal.scvBytes(keyId), xdr.ScVal.scvBytes(publicKey)],
     });
@@ -57,7 +51,10 @@ export class SmartWalletService {
     const contractId = Address.fromScVal(successResp.returnValue!).toString();
     this.wallet = { keyId: base64url(keyId), contractId };
 
-    console.warn("createPasskeyContract's keyId: ", this.wallet?.keyId);
+    const publicKeyStr = base64url(Buffer.from(publicKey));
+    console.log(
+      `✅ registered contract (${contractId}) with passkey (keyId: ${this.wallet.keyId}, pubKey: ${publicKeyStr}`,
+    );
 
     return this.wallet;
   }
@@ -71,7 +68,7 @@ export class SmartWalletService {
     const keyIdBuffer = base64url.toBuffer(keyId);
 
     const { simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: this.WebAuthnFactoryContractID,
+      contractId: this.WebAuthnFactoryContractId,
       method: "get_address",
       args: [xdr.ScVal.scvBytes(keyIdBuffer)],
     });

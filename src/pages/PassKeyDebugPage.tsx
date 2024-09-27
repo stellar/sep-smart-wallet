@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { Box } from "@/components/layout/Box";
 import { useRegisterPasskey } from "@/query/useRegisterPasskey";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
-import { useTokenStore } from "@/store/useTokenStore";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
@@ -13,12 +12,6 @@ export const PassKeyDebugPage = () => {
   const navigate = useNavigate();
 
   const { setContractSigner } = useContractSignerStore();
-  const { tokenInfo } = useTokenStore();
-  useEffect(() => {
-    if (!tokenInfo) {
-      navigate("/");
-    }
-  }, []);
 
   const {
     data: registerPasskeyResponse,
@@ -45,19 +38,9 @@ export const PassKeyDebugPage = () => {
     }
   }, [connectPasskeyResponse]);
 
-  // TODO: set contractSigner when we have the response
-  // useEffect(() => {
-  //   if (!!registerPasskeyResponse) {
-  //     setContractSigner({
-  //       addressId: registerPasskeyResponse,
-  //       method:
-  //     });
-  //   }
-  // }, [registerPasskeyResponse]);
-
   const renderResponse = () => {
     if (registerPasskeyError !== null) {
-      console.log(registerPasskeyError);
+      console.error("registerPasskeyError: ", registerPasskeyError);
     }
 
     return (
@@ -70,7 +53,7 @@ export const PassKeyDebugPage = () => {
 
         {registerPasskeyResponse ? (
           <Alert variant="success" placement="inline" title={"Success!"}>
-            {`✅ Passkey Registered (ContractID: ${registerPasskeyResponse.contractId}, KeyID: ${registerPasskeyResponse.keyId})`}
+            {`✅ Passkey Registered (ContractId: ${registerPasskeyResponse.contractId}, KeyID: ${registerPasskeyResponse.keyId})`}
           </Alert>
         ) : null}
 
@@ -82,7 +65,7 @@ export const PassKeyDebugPage = () => {
 
         {connectPasskeyResponse ? (
           <Alert variant="success" placement="inline" title={"Success!"}>
-            {`✅ Passkey Connected (ContractID: ${connectPasskeyResponse.contractId}, KeyID: ${connectPasskeyResponse.keyId})`}
+            {`✅ Passkey Connected (ContractId: ${connectPasskeyResponse.contractId}, KeyID: ${connectPasskeyResponse.keyId})`}
           </Alert>
         ) : null}
       </>
@@ -109,14 +92,15 @@ export const PassKeyDebugPage = () => {
         <Button
           size="md"
           variant="secondary"
-          onClick={() => {
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             const userName = prompt("Give this passkey a name", "passkey-marcelo-localhost");
-            console.log("userName", userName);
             if (userName) {
               registerPasskey({
                 projectName: "Meridian 2024 Smart Wallet!",
                 userName,
               });
+            } else {
+              (e.target as HTMLButtonElement).blur();
             }
           }}
           isLoading={isRegisterPasskeyPending}

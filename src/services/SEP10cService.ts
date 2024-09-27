@@ -140,10 +140,10 @@ export class SEP10cService {
 
     const contractFn = sorobanAuthEntry.rootInvocation().function().contractFn();
 
-    // validate contractID:
-    const contractID = ScConvert.contractID(contractFn.contractAddress());
-    if (contractID !== wantContractId) {
-      throw new Error(`contractID is invalid! Expected: ${wantContractId} but got: ${contractID}`);
+    // validate contractId:
+    const contractId = ScConvert.contractId(contractFn.contractAddress());
+    if (contractId !== wantContractId) {
+      throw new Error(`contractId is invalid! Expected: ${wantContractId} but got: ${contractId}`);
     }
 
     // validate functionName:

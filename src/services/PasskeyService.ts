@@ -105,9 +105,6 @@ export class PasskeyService {
             @Later
     */
 
-    console.log("publicKey bytes:  ", publicKey);
-    console.log("publicKey string: ", base64url(Buffer.from(publicKey)));
-
     return publicKey;
   }
 
@@ -117,14 +114,12 @@ export class PasskeyService {
       rpId: this.domain,
     });
 
-    console.log("authResponse: ", authResponse);
     this.keyId = authResponse.id;
     return this.keyId;
   }
 
   public async signPayload(payload: Buffer) {
     if (this.keyId === undefined) {
-      // TODO: maybe wire a connectWallet call here.
       throw new Error("No keyId set. Please connect a passkey first.");
     }
     const rpId = this.domain;

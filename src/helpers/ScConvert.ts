@@ -30,18 +30,18 @@ export const ScConvert = {
         throw new Error("Invalid address type");
     }
   },
-  contractID: (scAddress: xdr.ScAddress): string => {
+  contractId: (scAddress: xdr.ScAddress): string => {
     return Address.contract(scAddress.contractId()).toString();
   },
-  accountID: (scAddress: xdr.ScAddress): string => {
+  accountId: (scAddress: xdr.ScAddress): string => {
     return StrKey.encodeEd25519PublicKey(scAddress.accountId().ed25519());
   },
-  contractOrAccountID: (scAddress: xdr.ScAddress): string => {
+  contractOrAccountId: (scAddress: xdr.ScAddress): string => {
     switch (scAddress.switch()) {
       case xdr.ScAddressType.scAddressTypeAccount():
-        return ScConvert.accountID(scAddress);
+        return ScConvert.accountId(scAddress);
       case xdr.ScAddressType.scAddressTypeContract():
-        return ScConvert.contractID(scAddress);
+        return ScConvert.contractId(scAddress);
       default:
         throw new Error("Invalid address type");
     }

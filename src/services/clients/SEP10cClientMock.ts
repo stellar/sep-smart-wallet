@@ -126,11 +126,11 @@ export class SEP10cClientMock implements SEP10cClient {
     authEntry.credentials(clientCredentials);
 
     const contractFn = authEntry.rootInvocation().function().contractFn();
-    const contractID = ScConvert.contractID(contractFn.contractAddress());
+    const contractId = ScConvert.contractId(contractFn.contractAddress());
     const fnName = contractFn.functionName().toString();
     const args = contractFn.args();
 
-    const tokenContract = new Contract(contractID);
+    const tokenContract = new Contract(contractId);
 
     const sourceAppKP = Keypair.fromSecret(STELLAR.SOURCE_ACCOUNT.PRIVATE_KEY);
     const sourceAcc = await this.rpcClient.getAccount(sourceAppKP.publicKey());

@@ -34,8 +34,6 @@ export class SEP10cClientToml implements SEP10cClient {
     const tomlStr = await response.text();
     const tomlObj = toml.parse(tomlStr);
 
-    console.log("TOML object:", tomlObj);
-
     const signingKey = tomlObj.SIGNING_KEY as string;
     if (!signingKey) {
       throw new Error("SIGNING_KEY not found in TOML file");

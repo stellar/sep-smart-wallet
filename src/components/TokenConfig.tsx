@@ -239,7 +239,7 @@ const UpdateTokenModal: React.FC<UpdateTomlModalProps> = ({ visible, onClose, on
 
   const handleConfirm = () => {
     if (!StrKey.isValidContract(newTokenValue.contractId)) {
-      setErrorMessage("Invalid ContractID");
+      setErrorMessage("Invalid ContractId");
       return;
     } else if (newTokenValue.name.length < 1 || newTokenValue.name.length > 12) {
       setErrorMessage("Name must be between 1 and 12 characters");
@@ -274,7 +274,7 @@ const UpdateTokenModal: React.FC<UpdateTomlModalProps> = ({ visible, onClose, on
           id="tokenContractId"
           fieldSize="md"
           type="text"
-          label="Contract ID"
+          label="Contract Id"
           placeholder="CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA"
           value={newTokenValue.contractId}
           onChange={onTokenContractIdChange}
