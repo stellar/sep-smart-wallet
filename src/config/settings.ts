@@ -64,7 +64,8 @@ export const PASSKEY_CONTRACT = {
 // TOKEN_CONTRACT is used to store the contract ID for the tokens we use in this project.
 export const TOKEN_CONTRACT: TokenContractConfig = {
   NATIVE: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-  USDC: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA",
+  // USDC: "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA", // Circle's USDC
+  USDC: "CDTY3P6OVY3SMZXR3DZA667NAXFECA6A3AOZXEU33DD2ACBY43CIKDPT", // Test USDC
 };
 
 // C_ACCOUNT_ED25519_SIGNER is a C-account signer keypair used to sign transactions in the project. It is used to mock a user's signature.

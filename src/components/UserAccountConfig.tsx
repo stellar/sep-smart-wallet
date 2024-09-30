@@ -69,7 +69,7 @@ export const UserAccountConfig = () => {
                 resetExecWebAuth();
               }}
             >
-              Set Default
+              Set Default Account
             </Button>
 
             <Button
@@ -81,7 +81,7 @@ export const UserAccountConfig = () => {
               disabled={!contractSigner || isExecWebAuthPending}
               isLoading={isExecWebAuthPending}
             >
-              WebAuth
+              require_auth()
             </Button>
 
             <Button
@@ -93,7 +93,7 @@ export const UserAccountConfig = () => {
               }}
               disabled={!contractSigner}
             >
-              Clear
+              Logout
             </Button>
           </Box>
         </Box>

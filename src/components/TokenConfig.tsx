@@ -110,7 +110,7 @@ export const TokenConfig = () => {
                 setDefaultTokenModalVisible(true);
               }}
             >
-              Set Default
+              Use Default Token
             </Button>
 
             <Button
@@ -120,7 +120,7 @@ export const TokenConfig = () => {
                 setUpdateTokenModalVisible(true);
               }}
             >
-              Update
+              Update Token
             </Button>
 
             <Button
@@ -150,7 +150,7 @@ export const TokenConfig = () => {
               }}
               disabled={!tokenInfo}
             >
-              Clear
+              Clear Token
             </Button>
           </Box>
         </Box>
