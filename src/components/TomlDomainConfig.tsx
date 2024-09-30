@@ -1,4 +1,4 @@
-import { Button, Card, Input, Modal, Notification } from "@stellar/design-system";
+import { Button, Heading, Input, Modal, Notification } from "@stellar/design-system";
 
 import { Box } from "@/components/layout/Box";
 import { useTomlDomainStore } from "@/store/useTomlDomainStore";
@@ -16,28 +16,32 @@ export const TomlDomainConfig = () => {
   return (
     <>
       <Box gap="lg">
-        <Box gap="md" direction="row" align="center">
-          <Card>Toml source: {tomlSource}</Card>
-          <Button
-            size="md"
-            variant="primary"
-            onClick={() => {
-              setUpdateTomlModalVisible(true);
-            }}
-            disabled={false}
-          >
-            Update
-          </Button>
-          <Button
-            size="md"
-            variant="destructive"
-            onClick={() => {
-              setResetTomlModalVisible(true);
-            }}
-            disabled={!tomlDomain}
-          >
-            Reset
-          </Button>
+        <Box gap="md" direction="row" align="center" justify="space-between">
+          <Heading size="md" as="h4">
+            Toml domain: {tomlSource}
+          </Heading>
+          <Box gap="md" direction="row" align="center">
+            <Button
+              size="md"
+              variant="primary"
+              onClick={() => {
+                setUpdateTomlModalVisible(true);
+              }}
+              disabled={false}
+            >
+              Update Toml
+            </Button>
+            <Button
+              size="md"
+              variant="destructive"
+              onClick={() => {
+                setResetTomlModalVisible(true);
+              }}
+              disabled={!tomlDomain}
+            >
+              Reset
+            </Button>
+          </Box>
         </Box>
       </Box>
 

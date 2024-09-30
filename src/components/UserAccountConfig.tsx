@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Button, Heading } from "@stellar/design-system";
 
 import { Box } from "@/components/layout/Box";
@@ -27,6 +27,10 @@ export const UserAccountConfig = () => {
     isPending: isExecWebAuthPending,
     reset: resetExecWebAuth,
   } = useWebAuth();
+
+  useEffect(() => {
+    resetExecWebAuth();
+  }, [contractSigner]);
 
   const renderResponse = () => {
     if (execWebAuthError !== null) {
@@ -57,7 +61,7 @@ export const UserAccountConfig = () => {
       <Box gap="lg">
         <Box gap="md" direction="row" align="center" justify="space-between">
           <Heading size="md" as="h3">
-            AccountId: {contractSigner?.addressId || "No account selected"}
+            Account: {contractSigner?.addressId || "No account selected"}
           </Heading>
 
           <Box gap="md" direction="row" align="center">
@@ -69,7 +73,7 @@ export const UserAccountConfig = () => {
                 resetExecWebAuth();
               }}
             >
-              Set Default
+              Set Default Account
             </Button>
 
             <Button
@@ -81,7 +85,7 @@ export const UserAccountConfig = () => {
               disabled={!contractSigner || isExecWebAuthPending}
               isLoading={isExecWebAuthPending}
             >
-              WebAuth
+              require_auth()
             </Button>
 
             <Button
@@ -93,7 +97,7 @@ export const UserAccountConfig = () => {
               }}
               disabled={!contractSigner}
             >
-              Clear
+              Logout
             </Button>
           </Box>
         </Box>

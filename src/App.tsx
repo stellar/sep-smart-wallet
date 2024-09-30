@@ -25,9 +25,9 @@ export const App = () => {
       <Layout.Content>
         <Box gap="xxl" direction="column">
           <Layout.Inset>
-            <TomlDomainConfig />
             <UserAccountConfig />
             <TokenConfig />
+            <TomlDomainConfig />
           </Layout.Inset>
           <Layout.Inset>
             <Outlet />
