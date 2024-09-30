@@ -1,21 +1,40 @@
 # Soroban Project
 
-## Project Structure
+> [!WARNING]  
+> This code is for demonstration purposes only and has not been audited. Do not use it to store, protect, or secure assets or accounts on a public network.
 
-This repository uses the recommended structure for a Soroban project:
-```text
-.
-├── contracts
-│   └── hello_world
-│       ├── src
-│       │   ├── lib.rs
-│       │   └── test.rs
-│       └── Cargo.toml
-├── Cargo.toml
-└── README.md
+This repository contains [Soroban] contracts used in the `sep-smart-wallet` application, demonstrating account abstraction on [Stellar] with support for [WebAuthn].
+
+## Contracts
+
+- `webauthn-factory`: A Soroban factory contract that deploys and initializes new instances of WebAuthn contract accounts.
+- `webauthn-wallet`: A Soroban account contract initialized with an ECDSA secp256r1 public key for a WebAuthn device (e.g., a passkey from a browser, computer, phone, or Yubikey). This contract functions as an account on the network, capable of holding assets and controlled by the WebAuthn device's signatures.
+
+## Usage
+
+To deploy the contracts for this demo, use the [`Makefile`] in this repository with the following commands:
+
+```sh
+make build
+make deploy
 ```
 
-- New Soroban contracts can be put in `contracts`, each in their own directory. There is already a `hello_world` contract in there to get you started.
-- If you initialized this project with any other example contracts via `--with-example`, those contracts will be in the `contracts` directory as well.
-- Contracts should have their own `Cargo.toml` files that rely on the top-level `Cargo.toml` workspace for their dependencies.
-- Frontend libraries can be added to the top-level directory as well. If you initialized this project with a frontend template via `--frontend-template` you will have those files already included.
+👋👋👋 At this stage, you’ll need to update the Makefile with the following values:
+
+- `WEBAUTHN_FACTORY`: The address of the deployed `webauthn-factory` contract.
+- `WEBAUTHN_WASM`: The WASM hash for the `webauthn-wallet` contract.
+
+Once updated, you can initialize the factory contract by running:
+
+```sh
+make init
+```
+
+## Source
+
+This project is adapted from @kalepail’s [passkey-kit](https://github.com/kalepail/passkey-kit), which itself was adapted from @leighmcculloch’s [original demo](https://github.com/leighmcculloch/soroban-webauthn).
+
+[Stellar]: https://stellar.org
+[Soroban]: https://soroban.stellar.org
+[WebAuthn]: https://www.w3.org/TR/webauthn-2/
+[`Makefile`]: ./Makefile
