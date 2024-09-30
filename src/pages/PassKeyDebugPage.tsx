@@ -37,6 +37,14 @@ export const PassKeyDebugPage = () => {
       });
     }
   }, [connectPasskeyResponse]);
+  useEffect(() => {
+    if (registerPasskeyResponse !== undefined) {
+      setContractSigner({
+        addressId: registerPasskeyResponse.contractId,
+        method: AuthEntrySigner.fromPasskeyKeyId(registerPasskeyResponse.keyId),
+      });
+    }
+  }, [registerPasskeyResponse]);
 
   const renderResponse = () => {
     if (registerPasskeyError !== null) {
@@ -95,6 +103,7 @@ export const PassKeyDebugPage = () => {
           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             const userName = prompt("Give this passkey a name", "passkey-marcelo-localhost");
             if (userName) {
+              resetConnectPasskey();
               registerPasskey({
                 projectName: "Meridian 2024 Smart Wallet!",
                 userName,
@@ -113,6 +122,7 @@ export const PassKeyDebugPage = () => {
           size="md"
           variant="secondary"
           onClick={() => {
+            resetRegisterPasskey();
             connectPasskey();
           }}
           isLoading={isConnectPasskeyPending}
