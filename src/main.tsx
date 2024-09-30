@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // Route pages
-import { App } from "@/App";
+import { DebugApp } from "@/DebugApp";
 import { Home } from "@/pages/Home";
 import { PassKeyDebugPage } from "@/pages/PassKeyDebugPage";
 import { SEP10cDebugPage } from "@/pages/SEP10cDebugPage";
@@ -15,7 +15,7 @@ import "@/styles/global.scss";
 const router = createBrowserRouter([
   {
     path: "/debug",
-    element: <App />,
+    element: <DebugApp />,
     // Using nested routes to keep the main layout
     children: [
       {

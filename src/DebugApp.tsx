@@ -9,7 +9,7 @@ import { TomlDomainConfig } from "@/components/TomlDomainConfig";
 import { UserAccountConfig } from "@/components/UserAccountConfig";
 import { QueryProvider } from "@/query/QueryProvider";
 
-export const App = () => {
+export const DebugApp = () => {
   useEffect(() => {
     // Set the document title using the environment variable
     document.title = PROJECT.TITLE;
