@@ -65,15 +65,10 @@ export class SmartWalletService {
       throw new Error("No `keyId` was found");
     }
 
-    const keyIdBuffer = base64url.toBuffer(keyId);
-
-    const { simulationResponse } = await this.sorobanService.simulateContract({
-      contractId: this.WebAuthnFactoryContractId,
-      method: "get_address",
-      args: [xdr.ScVal.scvBytes(keyIdBuffer)],
+    const contractId = this.sorobanService.getContractIdFromKeyId({
+      keyId,
+      factoryContractId: this.WebAuthnFactoryContractId,
     });
-
-    const contractId = Address.fromScVal(simulationResponse.result!.retval).toString();
 
     this.wallet = { keyId, contractId };
 
