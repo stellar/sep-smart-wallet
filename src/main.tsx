@@ -4,15 +4,20 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // Route pages
 import { DebugApp } from "@/DebugApp";
-import { Home } from "@/pages/Home";
+import { DebugHome } from "@/pages/DebugHome";
 import { PassKeyDebugPage } from "@/pages/PassKeyDebugPage";
 import { SEP10cDebugPage } from "@/pages/SEP10cDebugPage";
 
 // Styles
 import "@stellar/design-system/build/styles.min.css";
 import "@/styles/global.scss";
+import { App } from "./App";
 
 const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
   {
     path: "/debug",
     element: <DebugApp />,
@@ -20,7 +25,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/debug/",
-        element: <Home />,
+        element: <DebugHome />,
       },
       {
         path: "/debug/sep10c",

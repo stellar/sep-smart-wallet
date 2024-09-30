@@ -1,7 +1,7 @@
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
 
-export const Home = () => {
+export const DebugHome = () => {
   return (
     <Box gap="lg">
       <RouterLink to="/debug/sep10c" variant="primary">
