@@ -91,7 +91,7 @@ export const PassKeyDebugPage = () => {
           size="md"
           variant="primary"
           onClick={() => {
-            navigate("/");
+            navigate("/debug");
           }}
         >
           Back to Home

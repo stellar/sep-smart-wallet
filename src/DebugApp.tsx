@@ -1,12 +1,15 @@
 import { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import { Layout } from "@stellar/design-system";
 
 import { PROJECT } from "@/config/settings";
 import { Box } from "@/components/layout/Box";
+import { TokenConfig } from "@/components/TokenConfig";
+import { TomlDomainConfig } from "@/components/TomlDomainConfig";
+import { UserAccountConfig } from "@/components/UserAccountConfig";
 import { QueryProvider } from "@/query/QueryProvider";
-import { RouterLink } from "./components/RouterLink";
 
-export const App = () => {
+export const DebugApp = () => {
   useEffect(() => {
     // Set the document title using the environment variable
     document.title = PROJECT.TITLE;
@@ -22,21 +25,16 @@ export const App = () => {
       <Layout.Content>
         <Box gap="xxl" direction="column">
           <Layout.Inset>
-            <Home />
+            <UserAccountConfig />
+            <TokenConfig />
+            <TomlDomainConfig />
+          </Layout.Inset>
+          <Layout.Inset>
+            <Outlet />
           </Layout.Inset>
         </Box>
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
     </QueryProvider>
-  );
-};
-
-export const Home = () => {
-  return (
-    <Box gap="lg">
-      <RouterLink to="/debug" variant="primary">
-        Debug Pages
-      </RouterLink>
-    </Box>
   );
 };

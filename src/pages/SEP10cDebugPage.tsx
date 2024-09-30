@@ -27,10 +27,10 @@ export const SEP10cDebugPage = () => {
 
   const { contractSigner } = useContractSignerStore();
   useEffect(() => {
-    if (!contractSigner) {
-      navigate("/");
+    if (contractSigner === undefined) {
+      navigate("/debug");
     }
-  }, []);
+  }, [contractSigner]);
 
   const {
     data: getSEP10cChallengeResponse,
@@ -117,7 +117,7 @@ export const SEP10cDebugPage = () => {
           size="md"
           variant="primary"
           onClick={() => {
-            navigate("/");
+            navigate("/debug");
           }}
         >
           Back to Home
