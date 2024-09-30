@@ -14,20 +14,20 @@ import "@/styles/global.scss";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/debug",
     element: <App />,
     // Using nested routes to keep the main layout
     children: [
       {
-        path: "/",
+        path: "/debug/",
         element: <Home />,
       },
       {
-        path: "/sep10c",
+        path: "/debug/sep10c",
         element: <SEP10cDebugPage />,
       },
       {
-        path: "/passkey",
+        path: "/debug/passkey",
         element: <PassKeyDebugPage />,
       },
     ],
