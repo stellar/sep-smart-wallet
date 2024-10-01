@@ -70,23 +70,6 @@ impl Contract {
 
         let max_ttl = env.storage().max_ttl();
 
-        env.storage().instance().set(&id, &address);
-
-        env.storage()
-            .instance()
-            .extend_ttl(max_ttl - WEEK_OF_LEDGERS, max_ttl);
-
-        Ok(address)
-    }
-
-    pub fn get_address(env: Env, id: Bytes) -> Result<Address, Error> {
-        let address = env
-            .storage()
-            .instance()
-            .get::<Bytes, Address>(&id)
-            .ok_or(Error::NotFound)?;
-
-        let max_ttl = env.storage().max_ttl();
         env.storage()
             .instance()
             .extend_ttl(max_ttl - WEEK_OF_LEDGERS, max_ttl);
