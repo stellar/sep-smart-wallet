@@ -2,7 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// Route pages
+// Route pages: /*
+import { App } from "@/App";
+
+// Route pages: /debug/*
 import { DebugApp } from "@/DebugApp";
 import { DebugHome } from "@/pages/DebugHome";
 import { PassKeyDebugPage } from "@/pages/PassKeyDebugPage";
@@ -11,7 +14,6 @@ import { SEP10cDebugPage } from "@/pages/SEP10cDebugPage";
 // Styles
 import "@stellar/design-system/build/styles.min.css";
 import "@/styles/global.scss";
-import { App } from "./App";
 
 const router = createBrowserRouter([
   {

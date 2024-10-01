@@ -1,15 +1,19 @@
 import {
   Address,
   Contract,
+  hash,
   Keypair,
   Operation,
   SorobanRpc,
+  StrKey,
   Transaction,
   TransactionBuilder,
   xdr,
 } from "@stellar/stellar-sdk";
+import { Buffer } from "buffer";
 
 import { STELLAR } from "@/config/settings";
+import base64url from "@/helpers/base64url";
 import { ERRORS } from "@/helpers/errors";
 import { getSorobanClient } from "@/helpers/getSorobanClient";
 import { ScConvert } from "@/helpers/ScConvert";
@@ -247,6 +251,32 @@ export class SorobanService {
     }
 
     throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${txResponse}`);
+  }
+
+  /**
+   * Infers the contract ID from the given key ID and the deployer ID.
+   *
+   * @param keyId - The key ID.
+   * @param factoryContractId - The factory contract ID that deployed the Smart wallet contract.
+   * @returns The contract ID.
+   */
+  public getContractIdFromKeyId({ keyId, factoryContractId }: { keyId: string; factoryContractId: string }): string {
+    const keyIdBuffer = base64url.toBuffer(keyId);
+
+    // Check for the contractId on-chain as a derivation from the keyId. This is the easiest and "cheapest" check however it will only work for the initially deployed passkey if it was used as derivation
+    const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
+      new xdr.HashIdPreimageContractId({
+        networkId: hash(Buffer.from(this.networkPassphrase)),
+        contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+          new xdr.ContractIdPreimageFromAddress({
+            address: Address.fromString(factoryContractId).toScAddress(),
+            salt: hash(keyIdBuffer),
+          }),
+        ),
+      }),
+    );
+
+    return StrKey.encodeContract(hash(preimage.toXDR()));
   }
 }
 
