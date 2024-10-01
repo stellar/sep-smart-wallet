@@ -54,7 +54,13 @@ Refer to the following GIF for a visual guide on configuring the TOML URL:
 
 ### Soroban Contracts
 
-For details on the Soroban contracts used in this project, refer to the [soroban](./soroban/README.md) directory.
+#### If You Are Reading this Before December 10th 2024
+
+The code included here relies on contracts deployed to the Stellar testnet network and will be available for a limited time, unytil the next testnet reset (scheduled for December 10th 2024).
+
+#### If You Are Reading this After December 10th 2024
+
+If you try to run it after that date, you'll need to redeploy the contracts, which is explained in the [soroban](./soroban/README.md) directory and can be done easily through the `Makefile` included on that directory.
 
 After deploying the contracts and retrieving the updated values for `WEBAUTHN_FACTORY` and `WEBAUTHN_WASM`, use these values to update the `.env` file by setting the `VITE_PASSKEY_CONTRACT_FACTORY` and `VITE_PASSKEY_CONTRACT_WALLET_WASM` variables, as demonstrated in the [`.env.example`] file.
 
