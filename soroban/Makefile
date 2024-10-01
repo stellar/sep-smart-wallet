@@ -17,17 +17,24 @@ generate-default-account:
 
 clean:
 	rm -rf out/
+	rm -rf contracts/webauth-verify/target/
 	rm -rf contracts/webauthn-factory/target/
 	rm -rf contracts/webauthn-wallet/target/
+	@cd contracts/webauth-verify && cargo clean
 	@cd contracts/webauthn-factory && cargo clean
 	@cd contracts/webauthn-wallet && cargo clean
 
 fmt:
+	@cd contracts/webauth-verify && cargo fmt --all
 	@cd contracts/webauthn-factory && cargo fmt --all
 	@cd contracts/webauthn-wallet && cargo fmt --all
 
 build:
 	rm -rf out/
+
+	rm -rf contracts/webauth-verify/target/wasm32-unknown-unknown/
+	@cd contracts/webauth-verify && stellar contract build --package webauth-verify --out-dir ../../out
+	stellar contract optimize --wasm ./out/webauth_verify.wasm
 	
 	rm -rf contracts/webauthn-wallet/target/wasm32-unknown-unknown/
 	@cd contracts/webauthn-wallet && stellar contract build --package webauthn-wallet --out-dir ../../out
@@ -41,6 +48,7 @@ get-or-create-token-contract:
 	stellar contract asset deploy --asset $(ASSET) 2>/dev/null || stellar contract id asset --asset $(ASSET)
 
 deploy:
+	stellar contract deploy --wasm ./out/webauth_verify.optimized.wasm
 	stellar contract deploy --wasm ./out/webauthn_factory.optimized.wasm
 	stellar contract install --wasm ./out/webauthn_wallet.optimized.wasm
 
