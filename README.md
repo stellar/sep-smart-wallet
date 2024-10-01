@@ -11,6 +11,7 @@ A passkey-based smart wallet that interacts with SEP-10c (alpha) and SEP-24 prot
 
 - Node.js 20.x or higher
 - [stellar-cli]
+- (optional) Docker, for deploying the test anchor
 
 ### Installation
 
@@ -20,6 +21,36 @@ The following commands use Yarn, but you can use npm if you prefer:
 yarn install
 yarn dev
 ```
+
+### Deploying a Test Anchor
+
+To interact with the SEP-10c and SEP-24 protocols, you need a test anchor. Follow these steps to deploy one:
+
+1. Clone the [java-stellar-anchor-sdk](https://github.com:stellar/java-stellar-anchor-sdk) repository on the `feature/m24-demo` branch:
+
+    ```sh
+    git clone -b feature/m24-demo git@github.com:stellar/java-stellar-anchor-sdk.git
+    ```
+
+2. Build the project using Docker:
+
+   ```sh
+   docker build --build-arg BASE_IMAGE=gradle:7.6.4-jdk17 -t anchor-platform:local ./
+   ```
+
+3. Run the project with Docker Compose:
+
+   ```sh
+   docker compose -f service-runner/src/main/resources/docker-compose.yaml up -d
+   ```
+
+### Communicating Bwtween the Wallet and the Anchor
+
+To connect the wallet to the anchor, configure the TOML address in the wallet’s frontend to point to the domain serving the stellar.toml file of the anchor. If you’re using the test anchor, the URL will be `http://localhost:8080`.
+
+Refer to the following GIF for a visual guide on configuring the TOML URL:
+
+![Configuring your *.toml url](docs-images/Configure_Toml_URL.gif)
 
 ### Soroban Contracts
 
