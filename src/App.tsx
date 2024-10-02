@@ -25,7 +25,6 @@ export const App = () => {
       <Layout.Content>
         <Box gap="xxl" direction="column" addlClassName="LayoutContent">
           <DemoHome />
-          <Home />
         </Box>
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
