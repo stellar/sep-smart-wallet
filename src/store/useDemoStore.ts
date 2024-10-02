@@ -5,10 +5,13 @@ import { immer } from "zustand/middleware/immer";
 import { ContractSigner, TokenInfo } from "@/types/types";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
+export type DebugTab = "sep10c" | "passkey";
+
 type DemoStoreParams = {
   tomlDomain: string | null;
   contractSigner: ContractSigner | null;
   tokenInfo: TokenInfo | null;
+  debugTab: DebugTab;
 };
 
 type DemoStoreActions = {
@@ -18,6 +21,7 @@ type DemoStoreActions = {
   clearContractSigner: () => void;
   setTokenInfo: (tokenInfo: TokenInfo) => void;
   clearTokenInfo: () => void;
+  setDebugTab: (selectedTab: DebugTab) => void;
 };
 
 type DemoStore = DemoStoreParams & DemoStoreActions;
@@ -29,6 +33,7 @@ export const useDemoStore = create<DemoStore>()(
       tomlDomain: null,
       contractSigner: null,
       tokenInfo: null,
+      debugTab: "sep10c",
       setTomlDomain: (tomlDomain: string) =>
         set((state) => {
           state.tomlDomain = tomlDomain;
@@ -52,6 +57,10 @@ export const useDemoStore = create<DemoStore>()(
       clearTokenInfo: () =>
         set((state) => {
           state.tokenInfo = null;
+        }),
+      setDebugTab: (selectedTab: DebugTab) =>
+        set((state) => {
+          state.debugTab = selectedTab;
         }),
     })),
     {

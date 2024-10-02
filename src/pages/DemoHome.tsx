@@ -6,9 +6,10 @@ import { useDemoStore } from "@/store/useDemoStore";
 import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 import { truncateStr } from "@/helpers/truncateStr";
+import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 
 import { Box } from "@/components/layout/Box";
-import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
+import { ButtonsBar } from "@/components/ButtonsBar";
 
 const DEFAULT_SIGNER_ADDRESS_ID = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
 const DEFAULT_SIGNER_SIGNING_METHOD: AuthEntrySigner = AuthEntrySigner.fromKeypairSecret(
@@ -223,23 +224,6 @@ export const DemoHome = () => {
     </Layout.Inset>
   );
 };
-
-const ButtonsBar = ({ left, right }: { left?: React.ReactNode; right?: React.ReactNode }) => (
-  <Box gap="sm" direction="row" align="center" justify="space-between">
-    <>
-      {left ? (
-        <Box gap="sm" direction="row" align="center">
-          <>{left}</>
-        </Box>
-      ) : null}
-      {right ? (
-        <Box gap="sm" direction="row" align="center" justify="end">
-          <>{right}</>
-        </Box>
-      ) : null}
-    </>
-  </Box>
-);
 
 const BalanceBox = ({
   tokenCode,

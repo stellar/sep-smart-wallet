@@ -8,6 +8,7 @@ import { DemoHome } from "@/pages/DemoHome";
 
 import { Box } from "@/components/layout/Box";
 import { RouterLink } from "@/components/RouterLink";
+import { DemoDebugger } from "./pages/DemoDebugger";
 
 export const App = () => {
   useEffect(() => {
@@ -25,6 +26,8 @@ export const App = () => {
       <Layout.Content>
         <Box gap="xxl" direction="column" addlClassName="LayoutContent">
           <DemoHome />
+          <hr className="LayoutDivider" />
+          <DemoDebugger />
         </Box>
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
