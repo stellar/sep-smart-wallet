@@ -98,3 +98,15 @@ body {
   border-radius: pxToRem(6px);
   background-color: var(--sds-clr-gray-03);
 }
+
+.NotificationItem {
+  &__label {
+    color: var(--sds-clr-gray-11);
+    font-weight: var(--sds-fw-semi-bold);
+  }
+
+  &__value {
+    font-family: var(--sds-ff-monospace);
+    font-size: pxToRem(16px);
+  }
+}

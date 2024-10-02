@@ -185,7 +185,7 @@ export const DebugSep10c = () => {
           </>
         }
         right={
-          getSEP10cChallengeResponse ? (
+          getSEP10cChallengeResponse || getSEP10cChallengeError ? (
             <Button
               size="md"
               variant="error"

@@ -15,7 +15,7 @@ export const DemoDebugger = () => {
     },
     {
       id: "passkey",
-      label: "Pass Key Debugger",
+      label: "Passkey Debugger",
     },
   ];
 
