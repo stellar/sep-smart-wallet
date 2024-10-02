@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@simplewebauthn/browser": "^10.0.0",
-    "@stellar/design-system": "^2.0.0-beta.16",
+    "@stellar/design-system": "^2.0.0-beta.17",
     "@stellar/stellar-sdk": "^12.3.0",
     "@tanstack/react-query": "^5.56.2",
     "buffer": "^6.0.3",
@@ -31,6 +31,7 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "immer": "^10.1.1",
     "path": "^0.12.7",
     "sass": "^1.78.0",
     "typescript": "^5.5.3",

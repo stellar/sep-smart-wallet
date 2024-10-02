@@ -15,3 +15,75 @@
 body {
   color: var(--sds-clr-gray-11);
 }
+
+#root {
+  // TODO: fix in SDS
+  .Display {
+    font-size: var(--Heading-font-size);
+  }
+}
+
+// Layout
+.Layout__header {
+  --Layout-header-padding-vertical: #{pxToRem(16px)};
+  border-bottom: 1px solid var(--sds-clr-gray-06);
+}
+
+.Layout__footer {
+  margin-top: 0;
+
+  .Layout__footer__content {
+    padding-top: pxToRem(16px);
+    padding-bottom: pxToRem(16px);
+    border-top: none;
+  }
+}
+
+.Layout__header,
+.Layout__footer {
+  .Layout__inset {
+    max-width: 100%;
+    padding-left: pxToRem(32px);
+    padding-right: pxToRem(32px);
+  }
+}
+
+.LayoutContent {
+  --sds-window-width-max: #{pxToRem(672px)};
+
+  padding-top: pxToRem(24px);
+  padding-bottom: pxToRem(24px);
+  flex: 1;
+
+  .Layout__inset {
+    padding-left: pxToRem(32px);
+    padding-right: pxToRem(32px);
+  }
+}
+
+.LayoutDivider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--sds-clr-gray-06);
+  margin: 0;
+  padding: 0;
+}
+
+// DemoHome
+.BalanceBox {
+  padding: pxToRem(16px);
+
+  &__assetWrapper {
+    & > * {
+      max-width: fit-content;
+    }
+  }
+
+  &__amount {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: pxToRem(32px);
+    color: var(--sds-clr-gray-12);
+  }
+}
