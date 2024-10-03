@@ -6,7 +6,6 @@ import { useSep24DepositPolling } from "@/query/useSep24DepositPolling";
 
 import { useDemoStore } from "@/store/useDemoStore";
 import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
-import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 import { truncateStr } from "@/helpers/truncateStr";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 
@@ -19,9 +18,6 @@ import IconUsdc from "@/assets/asset-usdc.svg?react";
 import IconXlm from "@/assets/asset-xlm.svg?react";
 
 const DEFAULT_SIGNER_ADDRESS_ID = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
-const DEFAULT_SIGNER_SIGNING_METHOD: AuthEntrySigner = AuthEntrySigner.fromKeypairSecret(
-  C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY,
-);
 
 const ASSET_ICON: { [key: string]: React.ReactElement } = {
   XLM: <IconXlm />,
@@ -128,6 +124,7 @@ export const DemoHome = () => {
   useEffect(() => {
     if (sep24DepositPollingResponse === TransactionStatus.COMPLETED) {
       setIsPolling(false);
+      setDepositAmountInput("");
       resetSep24Deposit();
 
       fetchBalance({
@@ -207,9 +204,14 @@ export const DemoHome = () => {
                 size="md"
                 variant="tertiary"
                 onClick={() => {
+                  if (!contractSigner?.method) {
+                    alert("Register or connect passkey");
+                    return;
+                  }
+
                   setContractSigner({
                     addressId: DEFAULT_SIGNER_ADDRESS_ID,
-                    method: DEFAULT_SIGNER_SIGNING_METHOD,
+                    method: contractSigner.method,
                   });
                 }}
               >
