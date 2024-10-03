@@ -25,6 +25,10 @@ body {
   .Notification__title__text {
     word-break: break-all;
   }
+
+  .ModalBody {
+    overflow: visible;
+  }
 }
 
 // Layout
@@ -90,6 +94,18 @@ body {
     height: pxToRem(32px);
     color: var(--sds-clr-gray-12);
   }
+}
+
+.Deposit {
+  &__inputIcon {
+    display: block;
+    width: pxToRem(16px);
+    height: pxToRem(16px);
+  }
+}
+
+.asset-xlm-icon {
+  fill: var(--sds-clr-gray-12);
 }
 
 // Debugger

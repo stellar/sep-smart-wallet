@@ -28,6 +28,7 @@ export const DemoDebugger = () => {
             <>
               {TABS.map((tab) => (
                 <Tab
+                  key={tab.id}
                   label={tab.label}
                   isSelected={debugTab === tab.id}
                   onClick={() => {
