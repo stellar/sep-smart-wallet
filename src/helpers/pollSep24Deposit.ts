@@ -1,5 +1,7 @@
 import { TransactionStatus } from "@/types/types";
 
+const REF_SERVER_URL = "https://anchor-reference-server-m24.stellar.org";
+// const REF_SERVER_URL = "http://localhost:8091";
 const END_STATUS = [TransactionStatus.PENDING_EXTERNAL, TransactionStatus.COMPLETED, TransactionStatus.ERROR];
 
 export const pollSep24Deposit = async ({
@@ -12,6 +14,18 @@ export const pollSep24Deposit = async ({
   token: string;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
+
+  // Trigger transaction completion
+  try {
+    const url = `${REF_SERVER_URL}/sep24/interactive?transaction_id=${transactionId}&token=${token}`;
+
+    const completeTxRequest = await fetch(url.toString());
+
+    const completeTxResponse = await completeTxRequest.json();
+    console.log(">>> completeTxResponse: ", completeTxResponse);
+  } catch (e) {
+    console.log(">>> Complete tx error: ", e);
+  }
 
   const transactionUrl = new URL(`${sep24TransferServerUrl}/transaction?id=${transactionId}&lang=en`);
 
