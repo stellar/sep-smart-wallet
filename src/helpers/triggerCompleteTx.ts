@@ -1,5 +1,5 @@
-const REF_SERVER_URL = "https://anchor-reference-server-m24.stellar.org";
-// const REF_SERVER_URL = "http://localhost:8091";
+// const REF_SERVER_URL = "https://anchor-reference-server-m24.stellar.org";
+const REF_SERVER_URL = "http://localhost:8091";
 
 export const triggerCompleteTx = async ({ interactiveUrl }: { interactiveUrl: string }) => {
   try {
