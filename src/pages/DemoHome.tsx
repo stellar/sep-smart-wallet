@@ -103,7 +103,7 @@ export const DemoHome = () => {
     if (!popup && isSep24DepositSuccess && interactiveUrl) {
       setIsDepositModalVisible(false);
 
-      popup = open(interactiveUrl, "popup", "width=500,height=800");
+      popup = open(interactiveUrl, "popup", "width=420,height=640");
 
       const interval = setInterval(() => {
         if (popup?.closed) {
