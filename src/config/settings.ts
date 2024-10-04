@@ -42,7 +42,7 @@ export const STELLAR: StellarConfig = {
 // PROJECT constants for the project, used to identify the project and its domain.
 export const PROJECT: ProjectConfig = {
   ID: import.meta.env.VITE_PROJECT_ID || "meridian-2024-smart-wallet",
-  TITLE: import.meta.env.VITE_PROJECT_TITLE || "Smart Wallet",
+  TITLE: import.meta.env.VITE_PROJECT_TITLE || "SEP Smart Wallet",
   DOMAIN: import.meta.env.VITE_PROJECT_DOMAIN || "localhost",
 };
 

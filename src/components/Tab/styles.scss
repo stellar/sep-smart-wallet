@@ -1,0 +1,27 @@
+@use "../../styles/utils.scss" as *;
+
+.Tab {
+  padding: pxToRem(6px) pxToRem(10px);
+  border-radius: pxToRem(6px);
+  color: var(--sds-clr-gray-11);
+  background-color: transparent;
+  cursor: pointer;
+  font-size: pxToRem(14px);
+  line-height: pxToRem(20px);
+  font-weight: var(--sds-fw-semi-bold);
+  transition: color var(--sds-anim-transition-default), background-color var(--sds-anim-transition-default);
+  min-width: fit-content;
+
+  &--selected {
+    color: var(--sds-clr-lilac-11);
+    background-color: var(--sds-clr-lilac-04);
+    cursor: default;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      color: var(--sds-clr-lilac-11);
+      background-color: var(--sds-clr-lilac-04);
+    }
+  }
+}
