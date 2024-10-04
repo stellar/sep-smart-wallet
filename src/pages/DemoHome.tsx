@@ -8,6 +8,7 @@ import { useDemoStore } from "@/store/useDemoStore";
 import { C_ACCOUNT_ED25519_SIGNER, TOKEN_CONTRACT } from "@/config/settings";
 import { truncateStr } from "@/helpers/truncateStr";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
+import { triggerCompleteTx } from "@/helpers/triggerCompleteTx";
 
 import { Box } from "@/components/layout/Box";
 import { ButtonsBar } from "@/components/ButtonsBar";
@@ -74,7 +75,7 @@ export const DemoHome = () => {
 
   const interactiveUrl = sep24DepositResponse?.interactiveUrl || "";
   const sep24TransferServerUrl = sep24DepositResponse?.sep24TransferServerUrl || "";
-  const token = sep24DepositResponse?.token || "";
+  const sep10Token = sep24DepositResponse?.sep10Token || "";
   const transactionId = sep24DepositResponse?.interactiveId || "";
 
   useEffect(() => {
@@ -104,15 +105,27 @@ export const DemoHome = () => {
       setIsDepositModalVisible(false);
 
       popup = open(interactiveUrl, "popup", "width=420,height=640");
-      setIsPolling(true);
+
+      const trigger = async () => {
+        await triggerCompleteTx({ interactiveUrl: interactiveUrl });
+      };
+
+      const interval = setInterval(() => {
+        if (popup?.closed) {
+          clearInterval(interval);
+
+          trigger();
+          setIsPolling(true);
+        }
+      }, 2000);
     }
   }, [interactiveUrl, isSep24DepositSuccess]);
 
   useEffect(() => {
-    if (isPolling && sep24TransferServerUrl && transactionId && token) {
-      sep24DepositPolling({ sep24TransferServerUrl, transactionId, token });
+    if (isPolling && sep24TransferServerUrl && transactionId && sep10Token) {
+      sep24DepositPolling({ sep24TransferServerUrl, transactionId, sep10Token });
     }
-  }, [isPolling, sep24DepositPolling, sep24TransferServerUrl, token, transactionId]);
+  }, [isPolling, sep24DepositPolling, sep24TransferServerUrl, sep10Token, transactionId]);
 
   useEffect(() => {
     if (sep24DepositPollingResponse === TransactionStatus.COMPLETED) {

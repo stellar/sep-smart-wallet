@@ -15,7 +15,7 @@ type UseSep24DepositProps = {
 type UseSep24DepositResponse = {
   interactiveUrl: string;
   interactiveId: string;
-  token: string;
+  sep10Token: string;
   sep24TransferServerUrl: string;
 };
 
@@ -82,7 +82,7 @@ export const useSep24Deposit = () => {
       return {
         interactiveUrl: interactiveResponse.url,
         interactiveId: interactiveResponse.id,
-        token,
+        sep10Token: token,
         sep24TransferServerUrl: tomlResponse.TRANSFER_SERVER_SEP0024!,
       };
     },
