@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ContractSigner } from "@/types/types";
 import { SEP10cService } from "@/services/SEP10cService";
 import { SEP10cClientToml } from "@/services/clients/SEP10cClientToml";
+import { normalizeHomeDomainUrl } from "@/helpers/normalizeHomeDomainUrl";
 
 type UseSep24DepositProps = {
   address: string;
@@ -26,7 +27,8 @@ export const useSep24Deposit = () => {
     mutationFn: async ({ address, signer, assetCode, homeDomain, amount }: UseSep24DepositProps) => {
       console.log("Initiating a SEP-24 deposit");
       // Check TOML
-      const tomlResponse = await getToml(homeDomain);
+      const tomlURL = normalizeHomeDomainUrl(homeDomain);
+      const tomlResponse = await getToml(tomlURL);
 
       const missingFields = SEP24_DEPOSIT_REQUIRED_FIELDS.reduce((res: string[], cur) => {
         if (!tomlResponse[cur]) {
@@ -52,7 +54,7 @@ export const useSep24Deposit = () => {
 
       // SEP-10
       // SEP-10 get
-      const sep10cClient = new SEP10cClientToml(homeDomain);
+      const sep10cClient = new SEP10cClientToml(tomlURL.toString());
       const server = new SEP10cService(sep10cClient);
 
       const sep10Challenge = await server.getSEP10cChallenge({ address });
@@ -95,8 +97,7 @@ export const useSep24Deposit = () => {
 // Helpers
 //==============================================================================
 
-const getToml = async (homeDomain: string) => {
-  const tomlURL = normalizeHomeDomainUrl(homeDomain);
+const getToml = async (tomlURL: URL) => {
   tomlURL.pathname = "/.well-known/stellar.toml";
 
   const tomlResponse =
@@ -107,19 +108,6 @@ const getToml = async (homeDomain: string) => {
       : await StellarToml.Resolver.resolve(tomlURL.host);
 
   return tomlResponse;
-};
-
-const normalizeHomeDomainUrl = (homeDomain: string): URL => {
-  let _homeDomain = homeDomain;
-
-  // default localhost to http instead of https
-  if (_homeDomain.includes("localhost")) {
-    _homeDomain = _homeDomain.startsWith("http") ? _homeDomain : `http://${_homeDomain}`;
-  } else {
-    _homeDomain = _homeDomain.startsWith("http") ? _homeDomain : `https://${_homeDomain}`;
-  }
-
-  return new URL(_homeDomain.replace(/\/$/, ""));
 };
 
 const sep24DepositInteractiveFlow = async ({
