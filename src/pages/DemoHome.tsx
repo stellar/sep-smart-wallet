@@ -125,7 +125,7 @@ export const DemoHome = () => {
     if (isPolling && sep24TransferServerUrl && transactionId && sep10Token) {
       sep24DepositPolling({ sep24TransferServerUrl, transactionId, sep10Token });
     }
-  }, [isPolling, sep24DepositPolling, sep24TransferServerUrl, sep10Token, transactionId]);
+  }, [isPolling, sep24TransferServerUrl, sep10Token, transactionId]);
 
   useEffect(() => {
     if (sep24DepositPollingResponse === TransactionStatus.COMPLETED) {
