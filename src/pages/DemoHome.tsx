@@ -274,7 +274,6 @@ export const DemoHome = () => {
                   variant="error"
                   onClick={() => {
                     clearContractSigner();
-                    clearTokenInfo();
                   }}
                 >
                   Logout
@@ -469,6 +468,10 @@ const BalanceBox = ({
   const renderAmount = () => {
     if (isLoading) {
       return <Loader />;
+    }
+
+    if (amount === undefined) {
+      return `- ${tokenCode}`;
     }
 
     return amount && tokenCode ? `${formatBigIntWithDecimals(amount, 7)} ${tokenCode}` : 0;
