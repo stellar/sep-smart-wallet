@@ -18,8 +18,12 @@ import { BroadcastStatusFn, TransactionStatus } from "@/types/types";
 import IconUsdc from "@/assets/asset-usdc.svg?react";
 import IconXlm from "@/assets/asset-xlm.svg?react";
 import { snakeToTitleCase } from "@/helpers/snakeToTitleCase";
+import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
-const DEFAULT_SIGNER_ADDRESS_ID = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
+const defaultSignerAddressId = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
+const defaultSignerSigningMethod: AuthEntrySigner = AuthEntrySigner.fromKeypairSecret(
+  C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY,
+);
 
 const ASSET_ICON: { [key: string]: React.ReactElement } = {
   XLM: <IconXlm />,
@@ -254,14 +258,9 @@ export const DemoHome = () => {
                 size="md"
                 variant="tertiary"
                 onClick={() => {
-                  if (!contractSigner?.method) {
-                    alert("Register or connect passkey");
-                    return;
-                  }
-
                   setContractSigner({
-                    addressId: DEFAULT_SIGNER_ADDRESS_ID,
-                    method: contractSigner.method,
+                    addressId: defaultSignerAddressId,
+                    method: defaultSignerSigningMethod,
                   });
                 }}
               >
