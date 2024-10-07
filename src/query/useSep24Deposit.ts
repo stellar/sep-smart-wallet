@@ -122,7 +122,7 @@ const sep24DepositInteractiveFlow = async ({
   amount: string;
   sep24TransferServerUrl: string;
   token: string;
-}) => {
+}): Promise<any> => {
   const depositParams = {
     account: address,
     asset_code: assetCode === "XLM" ? "native" : assetCode,
@@ -143,6 +143,10 @@ const sep24DepositInteractiveFlow = async ({
       Authorization: `Bearer ${token}`,
     },
   });
+  const respJson = await response.json();
+  if (!response.ok) {
+    throw new Error("Error in sep24DepositInteractiveFlow: " + JSON.stringify(respJson, null, 2));
+  }
 
-  return await response.json();
+  return respJson;
 };

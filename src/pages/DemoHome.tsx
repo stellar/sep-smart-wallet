@@ -50,7 +50,9 @@ export const DemoHome = () => {
     data: sep24DepositResponse,
     mutate: sep24DepositInit,
     isPending: isSep24DepositPending,
+    error: sep24DepositError,
     isSuccess: isSep24DepositSuccess,
+    isError: isSep24DepositError,
     reset: resetSep24Deposit,
   } = useSep24Deposit();
 
@@ -99,6 +101,12 @@ export const DemoHome = () => {
   }, [contractSignerAddressId, fetchBalance, resetFetchBalance, tokenContractId]);
 
   useEffect(() => {
+    if (isSep24DepositError) {
+      setIsDepositModalVisible(false);
+    }
+  }, [isSep24DepositError]);
+
+  useEffect(() => {
     let popup: Window | null = null;
 
     if (!popup && isSep24DepositSuccess && interactiveUrl) {
@@ -141,7 +149,7 @@ export const DemoHome = () => {
       const t = setTimeout(() => {
         resetSep24DepositPolling();
         clearTimeout(t);
-      }, 5000);
+      }, 10000);
     }
     // Not including tokenContractId and contractSignerAddressId
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -318,10 +326,16 @@ export const DemoHome = () => {
 
         <>
           {isSep24DepositPollingPending ||
-          isSep24DepositSuccess ||
           (sep24DepositPollingResponse && sep24DepositPollingResponse !== TransactionStatus.COMPLETED) ? (
-            <Notification variant="secondary" title="Deposit in progress…" isFilled />
+            <Notification variant="secondary" title="Deposit in progress…" icon={<Loader />} isFilled />
           ) : null}
+
+          {sep24DepositError ? (
+            <Notification variant="error" title="Error depositing" isFilled>
+              <>{sep24DepositError.message}</>
+            </Notification>
+          ) : null}
+
           {sep24DepositPollingResponse === TransactionStatus.COMPLETED ? (
             <Notification variant="success" title="Deposit completed" isFilled />
           ) : null}
