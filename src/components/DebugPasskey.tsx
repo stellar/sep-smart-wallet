@@ -8,9 +8,7 @@ import { useRegisterPasskey } from "@/query/useRegisterPasskey";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
 import { useDemoStore } from "@/store/useDemoStore";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
-
-const DEFAULT_PASSKEY_NAME = "passkey-meridian2024-localhost";
-const DEFAULT_PASSKEY_PROJECT_NAME = "Meridian 2024 Smart Wallet!";
+import { PASSKEY } from "@/config/settings";
 
 export const DebugPasskey = () => {
   const { setContractSigner } = useDemoStore();
@@ -104,12 +102,12 @@ export const DebugPasskey = () => {
               isLoading={isRegisterPasskeyPending}
               disabled={isConnectPasskeyPending}
               onClick={(e) => {
-                const userName = prompt("Give this passkey a name", DEFAULT_PASSKEY_NAME);
+                const userName = prompt("Give this passkey a name", PASSKEY.DEFAULT_NAME);
 
                 if (userName) {
                   resetConnectPasskey();
                   registerPasskey({
-                    projectName: DEFAULT_PASSKEY_PROJECT_NAME,
+                    projectName: PASSKEY.PROJECT_NAME,
                     userName,
                   });
                 } else {

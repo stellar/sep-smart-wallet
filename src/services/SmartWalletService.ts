@@ -1,7 +1,7 @@
 import { Address, hash, xdr } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
 
-import { PASSKEY_CONTRACT } from "@/config/settings";
+import { PASSKEY } from "@/config/settings";
 import base64url from "@/helpers/base64url";
 import { PasskeyService } from "@/services/PasskeyService";
 import { SorobanService } from "@/services/SorobanService";
@@ -19,7 +19,7 @@ export class SmartWalletService {
 
   private passkeyService: PasskeyService;
   private sorobanService: SorobanService;
-  private WebAuthnFactoryContractId = PASSKEY_CONTRACT.FACTORY;
+  private WebAuthnFactoryContractId = PASSKEY.CONTRACT_FACTORY_ID;
 
   public wallet?: Wallet;
 

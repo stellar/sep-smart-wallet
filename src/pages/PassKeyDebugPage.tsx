@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Box } from "@/components/layout/Box";
+import { PASSKEY } from "@/config/settings";
 import { useRegisterPasskey } from "@/query/useRegisterPasskey";
 import { useContractSignerStore } from "@/store/useContractSignerStore";
 import { useConnectPasskey } from "@/query/useConnectPasskey";
@@ -101,11 +102,11 @@ export const PassKeyDebugPage = () => {
           size="md"
           variant="secondary"
           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-            const userName = prompt("Give this passkey a name", "passkey-marcelo-localhost");
+            const userName = prompt("Give this passkey a name", PASSKEY.DEFAULT_NAME);
             if (userName) {
               resetConnectPasskey();
               registerPasskey({
-                projectName: "Meridian 2024 Smart Wallet!",
+                projectName: PASSKEY.PROJECT_NAME,
                 userName,
               });
             } else {
