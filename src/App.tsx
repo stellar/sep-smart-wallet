@@ -1,14 +1,11 @@
 import { useEffect } from "react";
 import { Layout } from "@stellar/design-system";
 
-import { PROJECT } from "@/config/settings";
-import { QueryProvider } from "@/query/QueryProvider";
-
-import { DemoHome } from "@/pages/DemoHome";
-
 import { Box } from "@/components/layout/Box";
-import { RouterLink } from "@/components/RouterLink";
-import { DemoDebugger } from "./pages/DemoDebugger";
+import { PROJECT } from "@/config/settings";
+import { DemoHome } from "@/pages/DemoHome";
+import { DemoDebugger } from "@/pages/DemoDebugger";
+import { QueryProvider } from "@/query/QueryProvider";
 
 export const App = () => {
   useEffect(() => {
@@ -32,20 +29,5 @@ export const App = () => {
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
     </QueryProvider>
-  );
-};
-
-export const Home = () => {
-  return (
-    <>
-      <hr className="LayoutDivider" />
-      <Layout.Inset>
-        <Box gap="lg">
-          <RouterLink to="/debug" variant="primary">
-            Debug Pages
-          </RouterLink>
-        </Box>
-      </Layout.Inset>
-    </>
   );
 };
