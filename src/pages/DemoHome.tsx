@@ -13,10 +13,11 @@ import { triggerCompleteTx } from "@/helpers/triggerCompleteTx";
 import { Box } from "@/components/layout/Box";
 import { ButtonsBar } from "@/components/ButtonsBar";
 
-import { TransactionStatus } from "@/types/types";
+import { BroadcastStatusFn, TransactionStatus } from "@/types/types";
 
 import IconUsdc from "@/assets/asset-usdc.svg?react";
 import IconXlm from "@/assets/asset-xlm.svg?react";
+import { snakeToTitleCase } from "@/helpers/snakeToTitleCase";
 
 const DEFAULT_SIGNER_ADDRESS_ID = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
 
@@ -63,6 +64,11 @@ export const DemoHome = () => {
     reset: resetSep24DepositPolling,
   } = useSep24DepositPolling();
 
+  type TxStatusAndMessage = {
+    status: string;
+    message: string;
+  };
+  const [intermediateTxStatus, setIntermediateTxStatus] = useState<TxStatusAndMessage[] | undefined>(undefined);
   const [tomlDomainInput, setTomlDomainInput] = useState<string>("");
   const [contractSignerAddressIdInput, setContractSignerAddressIdInput] = useState<string>("");
 
@@ -129,9 +135,38 @@ export const DemoHome = () => {
     }
   }, [interactiveUrl, isSep24DepositSuccess]);
 
+  const broadcastStatus: BroadcastStatusFn = (txStatus: TransactionStatus, message: string, isFinal: boolean) => {
+    console.log(`broadcastStatus: ${txStatus}, ${message}, ${isFinal}`);
+
+    if (!isFinal) {
+      setIntermediateTxStatus((prevState) => {
+        if (txStatus === TransactionStatus.INCOMPLETE) {
+          return prevState;
+        }
+
+        let alreadyExists = false;
+        const status = snakeToTitleCase(txStatus);
+
+        // Check if the status and message already exist in the previous state
+        if (prevState !== undefined) {
+          alreadyExists = prevState.some((tx) => {
+            return tx.status === status && tx.message === message;
+          });
+        }
+
+        // If it doesn't exist, add it to the state, otherwise return the same state
+        if (!alreadyExists) {
+          return prevState ? [...prevState, { status, message }] : [{ status, message }];
+        }
+
+        return prevState; // Return the previous state if nothing changes
+      });
+    }
+  };
+
   useEffect(() => {
     if (isPolling && sep24TransferServerUrl && transactionId && sep10Token) {
-      sep24DepositPolling({ sep24TransferServerUrl, transactionId, sep10Token });
+      sep24DepositPolling({ sep24TransferServerUrl, transactionId, sep10Token, broadcastStatus });
     }
   }, [isPolling, sep24TransferServerUrl, sep10Token, transactionId]);
 
@@ -147,6 +182,7 @@ export const DemoHome = () => {
       });
 
       const t = setTimeout(() => {
+        setIntermediateTxStatus(undefined);
         resetSep24DepositPolling();
         clearTimeout(t);
       }, 10000);
@@ -327,7 +363,15 @@ export const DemoHome = () => {
         <>
           {isSep24DepositPollingPending ||
           (sep24DepositPollingResponse && sep24DepositPollingResponse !== TransactionStatus.COMPLETED) ? (
-            <Notification variant="secondary" title="Deposit in progress…" icon={<Loader />} isFilled />
+            <Notification variant="secondary" title="Deposit in progress…" icon={<Loader />} isFilled>
+              <>
+                {intermediateTxStatus?.map((tx, index) => (
+                  <div key={index}>
+                    [{tx.status}] {tx.message}
+                  </div>
+                ))}
+              </>
+            </Notification>
           ) : null}
 
           {sep24DepositError ? (

@@ -88,3 +88,10 @@ export enum TransactionStatus {
   PENDING_USER = "pending_user",
   PENDING_USER_TRANSFER_START = "pending_user_transfer_start",
 }
+
+export type BroadcastStatusFn = (txStatus: TransactionStatus, message: string, isFinal: boolean) => void;
+
+const END_STATUS = [TransactionStatus.PENDING_EXTERNAL, TransactionStatus.COMPLETED, TransactionStatus.ERROR];
+export const isFinal = (txStatus: TransactionStatus): boolean => {
+  return END_STATUS.includes(txStatus);
+};

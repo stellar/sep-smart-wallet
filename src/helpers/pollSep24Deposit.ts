@@ -1,21 +1,22 @@
-import { TransactionStatus } from "@/types/types";
-
-const END_STATUS = [TransactionStatus.PENDING_EXTERNAL, TransactionStatus.COMPLETED, TransactionStatus.ERROR];
+import { BroadcastStatusFn, isFinal, TransactionStatus } from "@/types/types";
 
 export const pollSep24Deposit = async ({
   sep24TransferServerUrl,
   transactionId,
   sep10Token,
+  broadcastStatus,
 }: {
   sep24TransferServerUrl: string;
   transactionId: string;
   sep10Token: string;
+  broadcastStatus: BroadcastStatusFn;
 }) => {
   let currentStatus = TransactionStatus.INCOMPLETE;
+  let message = "";
 
   const transactionUrl = new URL(`${sep24TransferServerUrl}/transaction?id=${transactionId}&lang=en`);
 
-  while (!END_STATUS.includes(currentStatus)) {
+  while (!isFinal(currentStatus)) {
     const response = await fetch(transactionUrl.toString(), {
       headers: { Authorization: `Bearer ${sep10Token}` },
     });
@@ -27,37 +28,39 @@ export const pollSep24Deposit = async ({
 
       switch (currentStatus) {
         case TransactionStatus.PENDING_USER_TRANSFER_START: {
-          console.log("SEP-24 deposit: The anchor is waiting on you to take the action described in the popup");
+          message = "The anchor is waiting on you to take the action described in the popup";
           break;
         }
         case TransactionStatus.PENDING_ANCHOR: {
-          console.log("SEP-24 deposit: The anchor is processing the transaction");
+          message = "The anchor is processing the transaction";
           break;
         }
         case TransactionStatus.PENDING_STELLAR: {
-          console.log("SEP-24 deposit: The Stellar network is processing the transaction");
+          message = "The Stellar network is processing the transaction";
           break;
         }
         case TransactionStatus.PENDING_EXTERNAL: {
-          console.log("SEP-24 deposit: The transaction is being processed by an external system");
+          message = "The transaction is being processed by an external system";
           break;
         }
         case TransactionStatus.PENDING_TRUST: {
-          console.log("SEP-24 deposit: You must add a trustline to the asset in order to receive your deposit");
+          message = "You must add a trustline to the asset in order to receive your deposit";
           break;
         }
         case TransactionStatus.PENDING_USER: {
-          console.log("SEP-24 deposit: The anchor is waiting for you to take the action described in the popup");
+          message = "The anchor is waiting for you to take the action described in the popup";
           break;
         }
         case TransactionStatus.ERROR: {
-          console.log("SEP-24 deposit: There was a problem processing your transaction");
+          message = "There was a problem processing your transaction";
           break;
         }
         default:
         // do nothing
       }
     }
+    console.log(`[${currentStatus}] SEP-24 deposit: ${message}`);
+    broadcastStatus(currentStatus, message, isFinal(currentStatus));
 
     // run loop every 2 seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
