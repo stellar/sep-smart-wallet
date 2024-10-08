@@ -4,6 +4,7 @@ import { immer } from "zustand/middleware/immer";
 
 import { ContractSigner, TokenInfo } from "@/types/types";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
+import { DEFAULT_ANCHOR_TOML_DOMAIN } from "@/config/settings";
 
 export type DebugTab = "sep10c" | "passkey";
 
@@ -30,7 +31,7 @@ type DemoStore = DemoStoreParams & DemoStoreActions;
 export const useDemoStore = create<DemoStore>()(
   persist(
     immer((set) => ({
-      tomlDomain: null,
+      tomlDomain: DEFAULT_ANCHOR_TOML_DOMAIN,
       contractSigner: null,
       tokenInfo: null,
       debugTab: "sep10c",
