@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Button, Notification } from "@stellar/design-system";
+import { useEffect, useState } from "react";
+import { Button, Loader, Notification } from "@stellar/design-system";
 
 import { Box } from "@/components/layout/Box";
 import { ButtonsBar } from "@/components/ButtonsBar";
@@ -9,9 +9,12 @@ import { useConnectPasskey } from "@/query/useConnectPasskey";
 import { useDemoStore } from "@/store/useDemoStore";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 import { PASSKEY } from "@/config/settings";
+import { BroadcastPasskeySmartWalletCreationFn } from "@/types/types";
 
 export const DebugPasskey = () => {
   const { setContractSigner } = useDemoStore();
+
+  const [passkeyStatuses, setPasskeyStatuses] = useState<string[]>([]);
 
   const {
     data: registerPasskeyResponse,
@@ -20,6 +23,10 @@ export const DebugPasskey = () => {
     isPending: isRegisterPasskeyPending,
     reset: resetRegisterPasskey,
   } = useRegisterPasskey();
+
+  const broadcastStatus: BroadcastPasskeySmartWalletCreationFn = (msg: string, _: boolean) => {
+    setPasskeyStatuses((prev) => [...prev, msg]);
+  };
 
   const {
     data: connectPasskeyResponse,
@@ -37,12 +44,13 @@ export const DebugPasskey = () => {
 
   useEffect(() => {
     if (registerPasskeyContractId && registerPasskeyKeyId) {
+      setPasskeyStatuses([]);
       setContractSigner({
         addressId: registerPasskeyContractId,
         method: AuthEntrySigner.fromPasskeyKeyId(registerPasskeyKeyId),
       });
     }
-  }, [registerPasskeyContractId, registerPasskeyKeyId, setContractSigner]);
+  }, [registerPasskeyContractId, registerPasskeyKeyId, setContractSigner, setPasskeyStatuses]);
 
   useEffect(() => {
     if (connectPasskeyContractId && connectPasskeyKeyId) {
@@ -56,9 +64,20 @@ export const DebugPasskey = () => {
   const renderResponse = () => {
     return (
       <>
+        {/* Register: pending */}
+        {isRegisterPasskeyPending ? (
+          <Notification variant="secondary" title="Deposit in progress…" icon={<Loader />} isFilled>
+            <>
+              {passkeyStatuses?.map((statusMsg, index) => (
+                <div key={index}>{statusMsg}</div>
+              ))}
+            </>
+          </Notification>
+        ) : null}
+
         {/* Register: success */}
         {registerPasskeyResponse ? (
-          <Notification variant="success" isFilled title={`Passkey Registered`}>
+          <Notification variant="success" isFilled title={`Passkey Smart Wallet Registered`}>
             <Box gap="sm">
               <NotificationItem label="Contract ID" value={registerPasskeyResponse.contractId} />
               <NotificationItem label="Key ID" value={registerPasskeyResponse.keyId} />
@@ -109,6 +128,7 @@ export const DebugPasskey = () => {
                   registerPasskey({
                     projectName: PASSKEY.PROJECT_NAME,
                     userName,
+                    broadcastStatus,
                   });
                 } else {
                   (e.target as HTMLButtonElement).blur();

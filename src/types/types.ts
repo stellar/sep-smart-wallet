@@ -90,6 +90,7 @@ export enum TransactionStatus {
 }
 
 export type BroadcastStatusFn = (txStatus: TransactionStatus, message: string, isFinal: boolean) => void;
+export type BroadcastPasskeySmartWalletCreationFn = (message: string, isFinal: boolean) => void;
 
 const END_STATUS = [TransactionStatus.PENDING_EXTERNAL, TransactionStatus.COMPLETED, TransactionStatus.ERROR];
 export const isFinal = (txStatus: TransactionStatus): boolean => {
