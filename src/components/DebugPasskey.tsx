@@ -66,7 +66,7 @@ export const DebugPasskey = () => {
       <>
         {/* Register: pending */}
         {isRegisterPasskeyPending ? (
-          <Notification variant="secondary" title="Smart Wallet deployment in progress…" icon={<Loader />} isFilled>
+          <Notification variant="secondary" title="Smart Wallet Deployment in Progress…" icon={<Loader />} isFilled>
             <>
               {passkeyStatuses?.map((statusMsg, index) => (
                 <div key={index}>{statusMsg}</div>
