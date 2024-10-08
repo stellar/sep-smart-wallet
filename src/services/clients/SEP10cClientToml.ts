@@ -8,13 +8,14 @@ import {
   SEP10cInfo,
   SEP10cClient,
 } from "@/types/types";
+import { normalizeHomeDomainUrl } from "@/helpers/normalizeHomeDomainUrl";
 
 export class SEP10cClientToml implements SEP10cClient {
   private tomlUrl: string;
   private sep10cInfo?: SEP10cInfo;
 
   constructor(tomlUrl: string) {
-    this.tomlUrl = tomlUrl;
+    this.tomlUrl = normalizeHomeDomainUrl(tomlUrl).toString();
   }
 
   async getSep10cInfo(): Promise<SEP10cInfo> {
