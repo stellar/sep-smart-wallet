@@ -71,3 +71,28 @@ export type PasscodeSignature = {
   authenticationResponse: AuthenticationResponseJSON;
   compactSignature: Buffer;
 };
+
+export enum TransactionStatus {
+  COMPLETED = "completed",
+  ERROR = "error",
+  INCOMPLETE = "incomplete",
+  NON_INTERACTIVE_CUSTOMER_INFO_NEEDED = "non_interactive_customer_info_needed",
+  PENDING_ANCHOR = "pending_anchor",
+  PENDING_CUSTOMER_INFO_UPDATE = "pending_customer_info_update",
+  PENDING_EXTERNAL = "pending_external",
+  PENDING_RECEIVER = "pending_receiver",
+  PENDING_SENDER = "pending_sender",
+  PENDING_STELLAR = "pending_stellar",
+  PENDING_TRANSACTION_INFO_UPDATE = "pending_transaction_info_update",
+  PENDING_TRUST = "pending_trust",
+  PENDING_USER = "pending_user",
+  PENDING_USER_TRANSFER_START = "pending_user_transfer_start",
+}
+
+export type BroadcastStatusFn = (txStatus: TransactionStatus, message: string, isFinal: boolean) => void;
+export type BroadcastPasskeySmartWalletCreationFn = (message: string, isFinal: boolean) => void;
+
+const END_STATUS = [TransactionStatus.PENDING_EXTERNAL, TransactionStatus.COMPLETED, TransactionStatus.ERROR];
+export const isFinal = (txStatus: TransactionStatus): boolean => {
+  return END_STATUS.includes(txStatus);
+};

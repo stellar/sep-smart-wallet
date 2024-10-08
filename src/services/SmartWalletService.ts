@@ -1,11 +1,11 @@
 import { Address, hash, xdr } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
 
-import { PASSKEY_CONTRACT } from "@/config/settings";
+import { PASSKEY } from "@/config/settings";
 import base64url from "@/helpers/base64url";
 import { PasskeyService } from "@/services/PasskeyService";
 import { SorobanService } from "@/services/SorobanService";
-import { Wallet } from "@/types/types";
+import { BroadcastPasskeySmartWalletCreationFn, Wallet } from "@/types/types";
 
 export class SmartWalletService {
   private static instance: SmartWalletService;
@@ -19,7 +19,7 @@ export class SmartWalletService {
 
   private passkeyService: PasskeyService;
   private sorobanService: SorobanService;
-  private WebAuthnFactoryContractId = PASSKEY_CONTRACT.FACTORY;
+  private WebAuthnFactoryContractId = PASSKEY.CONTRACT_FACTORY_ID;
 
   public wallet?: Wallet;
 
@@ -38,8 +38,14 @@ export class SmartWalletService {
     return this;
   }
 
-  public async createPasskeyContract(app: string, user: string): Promise<Wallet> {
+  public async createPasskeyContract(
+    app: string,
+    user: string,
+    broadcastStatus?: BroadcastPasskeySmartWalletCreationFn,
+  ): Promise<Wallet> {
     const { keyId, publicKey } = await this.passkeyService.registerPasskey(app, user);
+    const _broadcastStatus: BroadcastPasskeySmartWalletCreationFn = broadcastStatus || (() => {});
+    _broadcastStatus("🔐 Passkey stored locally", false);
 
     const { tx, simulationResponse } = await this.sorobanService.simulateContract({
       contractId: this.WebAuthnFactoryContractId,
@@ -47,14 +53,18 @@ export class SmartWalletService {
       args: [xdr.ScVal.scvBytes(hash(keyId)), xdr.ScVal.scvBytes(keyId), xdr.ScVal.scvBytes(publicKey)],
     });
 
+    _broadcastStatus("🚀 Deploying passkey smart wallet...", false);
     const successResp = await this.sorobanService.callContract({ tx, simulationResponse });
     const contractId = Address.fromScVal(successResp.returnValue!).toString();
     this.wallet = { keyId: base64url(keyId), contractId };
 
     const publicKeyStr = base64url(Buffer.from(publicKey));
+    _broadcastStatus("✅ Passkey smart wallet deployed!", true);
     console.log(
       `✅ registered contract (${contractId}) with passkey (keyId: ${this.wallet.keyId}, pubKey: ${publicKeyStr}`,
     );
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     return this.wallet;
   }

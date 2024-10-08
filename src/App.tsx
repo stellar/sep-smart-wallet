@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { Layout } from "@stellar/design-system";
 
-import { PROJECT } from "@/config/settings";
 import { Box } from "@/components/layout/Box";
+import { PROJECT } from "@/config/settings";
+import { DemoHome } from "@/pages/DemoHome";
+import { DemoDebugger } from "@/pages/DemoDebugger";
 import { QueryProvider } from "@/query/QueryProvider";
-import { RouterLink } from "./components/RouterLink";
 
 export const App = () => {
   useEffect(() => {
@@ -20,23 +21,13 @@ export const App = () => {
         hasThemeSwitch
       />
       <Layout.Content>
-        <Box gap="xxl" direction="column">
-          <Layout.Inset>
-            <Home />
-          </Layout.Inset>
+        <Box gap="xxl" direction="column" addlClassName="LayoutContent">
+          <DemoHome />
+          <hr className="LayoutDivider" />
+          <DemoDebugger />
         </Box>
       </Layout.Content>
       <Layout.Footer></Layout.Footer>
     </QueryProvider>
-  );
-};
-
-export const Home = () => {
-  return (
-    <Box gap="lg">
-      <RouterLink to="/debug" variant="primary">
-        Debug Pages
-      </RouterLink>
-    </Box>
   );
 };
