@@ -46,28 +46,39 @@ export const DemoHome = () => {
   } = useDemoStore();
 
   const {
-    data: getPaymentsResponse,
-    mutate: getPayments,
-    error: getPaymentsError,
-    // isPending: isGetPaymentsPending,
-    // reset: resetGetPayments,
-  } = useGetPayments();
+    data: buildTxResponse,
+    mutate: buildTx,
+    error: buildTxError,
+    // isPending: isBuildTxPending,
+    // reset: resetBuildTx,
+  } = useBuildTransaction();
 
   const debugWalletBackend = () => {
-    getPayments();
+    handleBuildTransfer();
   };
 
   useEffect(() => {
-    if (getPaymentsError) {
-      console.error(getPaymentsError);
+    if (buildTxError) {
+      console.error(buildTxError);
     }
-  }, [getPaymentsError]);
+  }, [buildTxError]);
 
   useEffect(() => {
-    if (getPaymentsResponse) {
-      console.log(getPaymentsResponse);
+    if (buildTxResponse) {
+      console.log(buildTxResponse);
     }
-  }, [getPaymentsResponse]);
+  }, [buildTxResponse]);
+
+  const handleBuildTransfer = () => {
+    const stroopsAmount = "10000000";
+    buildTx({
+      contractId: tokenInfo!.contractId,
+      fromAccId: contractSigner!.addressId,
+      toAccId: contractSigner!.addressId,
+      amount: stroopsAmount.toString(),
+      signer: contractSigner!,
+    });
+  };
 
   const {
     data: fetchBalanceResponse,
