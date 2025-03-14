@@ -4,7 +4,7 @@ import { StrKey } from "@stellar/stellar-sdk";
 
 import { Box } from "@/components/layout/Box";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
-import { STELLAR, TOKEN_CONTRACT } from "@/config/settings";
+import { C_ACCOUNT_ED25519_SIGNER, STELLAR, TOKEN_CONTRACT } from "@/config/settings";
 import { formatBigIntWithDecimals } from "@/helpers/formatBigIntWithDecimals";
 import { truncateStr } from "@/helpers/truncateStr";
 import { useBalance } from "@/query/useBalance";
@@ -89,7 +89,7 @@ export const TokenConfig = () => {
     balanceText = `${formatBigIntWithDecimals(fetchBalanceResponse, 7)} ${tokenName}`;
   }
 
-  const toAcc = STELLAR.SOURCE_ACCOUNT.PUBLIC_KEY;
+  const toAcc = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
   const toAccTruncated = truncateStr(toAcc, 4);
   const amount: number = 1;
   const stroopsAmount = BigInt(amount) * BigInt(10 ** 7);

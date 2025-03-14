@@ -65,15 +65,15 @@ export const TOKEN_CONTRACT: TokenContractConfig = {
 // C_ACCOUNT_ED25519_SIGNER is a C-account signer keypair used to sign transactions in the project. It is used to mock a user's signature.
 // contract deployed from https://github.com/stellar/soroban-examples/tree/v21.6.0/account
 export const C_ACCOUNT_ED25519_SIGNER: SignerKeypair = {
-  PUBLIC_KEY: "CCU5TWNSNHKCZLMQOYYKOBHN45K23A6JFD3UABZJ7MMFSAUMKAC5P4FT",
-  PRIVATE_KEY: "SAARF2ZWAHZJMKA6LXIFVNIHUBEUTMKV5NWCCUZV6ORPKLUK6RSOYZ4D", // 🟢 correct signature
+  PUBLIC_KEY: "CCOYWDGHP2HJ6ETXMQBVABEGY32VHU2W22PZGMVPYYWCHWUPKEV7IZZE",
+  PRIVATE_KEY: "SAARF2ZWAHZJMKA6LXIFVNIHUBEUTMKV5NWCCUZV6ORPKLUK6RSOYZ4D", // 🟢 correct signature for GAX7FKBADU7HQFB3EYLCYPFKIXHE7SJSBCX7CCGXVVWJ5OU3VTWOFEI5
   // PRIVATE_KEY: "SC6KX53MU72XPGYKHW76B7DI3SXVFHQLNMAKXHD3KF5VCGY2PJJ3ACSQ", // 🔴 bad signature
 };
 
 // WEBAUTH_CONTRACT is a contract used to verify the signature of the user through Soroban's `require_auth()` method.
 // contract deployed from https://github.com/philipliu/demo/blob/812490ec3559678374ab7d785686bce9691a9add/sep10c/contracts/web_auth/src/lib.rs#L17
 export const WEBAUTH_CONTRACT = {
-  ID: "CDQDXQPUUDLUZGSBQZBUMZA6ZKVR5JWEX4Y32K3MYQYUMAHIJFLVNOYB",
+  ID: "CAXKHOV4IJYXNVV464F5RBK6LWODF3EVDBLL3ZOWKOBGHFP2S22PMO2O",
   FN_NAME: "web_auth_verify",
   SIGNER: {
     PUBLIC_KEY: "GC4BDFONC3EHB5VZCI5BYF2OJEXX7LCU7JROUYF5RRY62FAWMF4GFV3X",
