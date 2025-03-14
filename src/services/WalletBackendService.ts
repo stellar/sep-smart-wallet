@@ -1,3 +1,4 @@
+import { BuildTransactionsRequest, BuildTransactionsResponse } from "@/types/types";
 import { Keypair } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
 
@@ -62,5 +63,15 @@ export class WalletBackendService {
 
   async getPayments(): Promise<any> {
     return this.request("/payments");
+  }
+
+  /**
+   * Builds a new transaction with a Channel Account as the source.
+   *
+   * @param transactions - An array of transactions to be built.
+   * @returns A promise that resolves to the built transactions in XDR format.
+   */
+  async buildTransaction(transactions: BuildTransactionsRequest): Promise<BuildTransactionsResponse> {
+    return this.request("/tss/transactions/build", "POST", transactions);
   }
 }

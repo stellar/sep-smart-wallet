@@ -96,3 +96,32 @@ const END_STATUS = [TransactionStatus.PENDING_EXTERNAL, TransactionStatus.COMPLE
 export const isFinal = (txStatus: TransactionStatus): boolean => {
   return END_STATUS.includes(txStatus);
 };
+
+/**
+ * Represents a Stellar transaction data that will be used to build a new transaction with a Channel Account as the source.
+ *
+ * @property operations - An array of operations in XDR format.
+ * @property timebounds - The time bounds for the transaction, represented as a Unix timestamp.
+ */
+export type WBTransaction = {
+  operations: string[];
+  timebounds: number;
+};
+
+/**
+ * Represents a request to build a new transaction with a Channel Account as the source.
+ *
+ * @property transactions - An array of transactions to be built.
+ */
+export type BuildTransactionsRequest = {
+  transactions: WBTransaction[];
+};
+
+/**
+ * Represents a response from the Wallet Backend containing the built transactions in XDR format.
+ *
+ * @property transactionxdrs - An array of built transactions in XDR format.
+ */
+export type BuildTransactionsResponse = {
+  transactionxdrs: string[];
+};
