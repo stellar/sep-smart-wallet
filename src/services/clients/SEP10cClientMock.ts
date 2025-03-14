@@ -1,13 +1,4 @@
-import {
-  Contract,
-  hash,
-  Keypair,
-  nativeToScVal,
-  Operation,
-  SorobanRpc,
-  TransactionBuilder,
-  xdr,
-} from "@stellar/stellar-sdk";
+import { Contract, hash, Keypair, nativeToScVal, Operation, rpc, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
 
 import { SEP10cServerKeypair, STELLAR, WEBAUTH_CONTRACT } from "@/config/settings";
 import { ScConvert } from "@/helpers/ScConvert";
@@ -33,7 +24,7 @@ export class SEP10cClientMock implements SEP10cClient {
   }
 
   private sorobanService: SorobanService;
-  private rpcClient: SorobanRpc.Server;
+  private rpcClient: rpc.Server;
   private sep10cInfo: SEP10cInfo;
 
   constructor() {
@@ -103,7 +94,7 @@ export class SEP10cClientMock implements SEP10cClient {
     console.log("Simulating contract call:", tx.toXDR());
     // Simulate the transaction
     let simulationResponse = await this.rpcClient.simulateTransaction(tx);
-    if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
+    if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
       throw new Error(`${ERRORS.TX_SIM_FAILED}: ${simulationResponse}`);
     }
 

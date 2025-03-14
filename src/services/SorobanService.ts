@@ -4,7 +4,7 @@ import {
   hash,
   Keypair,
   Operation,
-  SorobanRpc,
+  rpc,
   StrKey,
   Transaction,
   TransactionBuilder,
@@ -29,7 +29,7 @@ export class SorobanService {
     return SorobanService.instance;
   }
 
-  public rpcClient: SorobanRpc.Server;
+  public rpcClient: rpc.Server;
   public networkPassphrase: string;
   public timeoutInSeconds: number;
   public fee: string;
@@ -191,7 +191,7 @@ export class SorobanService {
     console.log("Simulating contract call:", tx.toXDR());
     // Simulate the transaction
     let simulationResponse = await this.rpcClient.simulateTransaction(tx);
-    if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
+    if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
       throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 1): ${simulationResponse}`);
     }
 
@@ -206,10 +206,8 @@ export class SorobanService {
       });
 
       // Simulate again after signing
-      simulationResponse = (await this.rpcClient.simulateTransaction(
-        tx,
-      )) as SorobanRpc.Api.SimulateTransactionSuccessResponse;
-      if (!SorobanRpc.Api.isSimulationSuccess(simulationResponse)) {
+      simulationResponse = (await this.rpcClient.simulateTransaction(tx)) as rpc.Api.SimulateTransactionSuccessResponse;
+      if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
         throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 2): ${simulationResponse}`);
       }
     }
@@ -226,9 +224,9 @@ export class SorobanService {
   public async callContract({
     tx,
     simulationResponse,
-  }: CallContract): Promise<SorobanRpc.Api.GetSuccessfulTransactionResponse> {
+  }: CallContract): Promise<rpc.Api.GetSuccessfulTransactionResponse> {
     // Assemble, build and sign the transaction
-    const preparedTransaction = SorobanRpc.assembleTransaction(tx, simulationResponse);
+    const preparedTransaction = rpc.assembleTransaction(tx, simulationResponse);
     tx = preparedTransaction.build();
     tx.sign(this.sourceAccountKP);
 
@@ -240,13 +238,13 @@ export class SorobanService {
 
     // Poll for transaction status
     let txResponse = await this.rpcClient.getTransaction(sendResponse.hash);
-    while (txResponse.status === SorobanRpc.Api.GetTransactionStatus.NOT_FOUND) {
+    while (txResponse.status === rpc.Api.GetTransactionStatus.NOT_FOUND) {
       txResponse = await this.rpcClient.getTransaction(sendResponse.hash);
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
     // Check if transaction succeeded
-    if (txResponse.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
+    if (txResponse.status === rpc.Api.GetTransactionStatus.SUCCESS) {
       return txResponse;
     }
 
@@ -289,7 +287,7 @@ type SimulateContract = {
 
 type CallContract = {
   tx: Transaction;
-  simulationResponse: SorobanRpc.Api.SimulateTransactionSuccessResponse;
+  simulationResponse: rpc.Api.SimulateTransactionSuccessResponse;
 };
 
 type SignAuthEntries = {

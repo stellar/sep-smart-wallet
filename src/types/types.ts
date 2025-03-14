@@ -1,5 +1,5 @@
 import { AuthenticationResponseJSON } from "@simplewebauthn/types";
-import { SorobanRpc, Transaction, xdr } from "@stellar/stellar-sdk";
+import { rpc, Transaction, xdr } from "@stellar/stellar-sdk";
 
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
@@ -10,7 +10,7 @@ export type ContractSigner = {
 
 export type SimulationResult = {
   tx: Transaction;
-  simulationResponse: SorobanRpc.Api.SimulateTransactionSuccessResponse;
+  simulationResponse: rpc.Api.SimulateTransactionSuccessResponse;
 };
 
 export type SorobanEntryAddress = {
