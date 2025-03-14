@@ -20,6 +20,8 @@ import IconXlm from "@/assets/asset-xlm.svg?react";
 import { snakeToTitleCase } from "@/helpers/snakeToTitleCase";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
+import { useBuildTransaction, useGetPayments } from "@/query/useWalletBackend";
+
 const defaultSignerAddressId = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
 const defaultSignerSigningMethod: AuthEntrySigner = AuthEntrySigner.fromKeypairSecret(
   C_ACCOUNT_ED25519_SIGNER.PRIVATE_KEY,
@@ -42,6 +44,30 @@ export const DemoHome = () => {
     setTokenInfo,
     clearTokenInfo,
   } = useDemoStore();
+
+  const {
+    data: getPaymentsResponse,
+    mutate: getPayments,
+    error: getPaymentsError,
+    // isPending: isGetPaymentsPending,
+    // reset: resetGetPayments,
+  } = useGetPayments();
+
+  const debugWalletBackend = () => {
+    getPayments();
+  };
+
+  useEffect(() => {
+    if (getPaymentsError) {
+      console.error(getPaymentsError);
+    }
+  }, [getPaymentsError]);
+
+  useEffect(() => {
+    if (getPaymentsResponse) {
+      console.log(getPaymentsResponse);
+    }
+  }, [getPaymentsResponse]);
 
   const {
     data: fetchBalanceResponse,
@@ -332,6 +358,16 @@ export const DemoHome = () => {
                 >
                   Set USDC Asset
                 </Button>
+
+                <Button
+                  size="md"
+                  variant="tertiary"
+                  onClick={() => {
+                    debugWalletBackend();
+                  }}
+                >
+                  Wallet-Backend
+                </Button>
               </>
             }
             right={
@@ -352,7 +388,7 @@ export const DemoHome = () => {
           <>
             {fetchBalanceError ? (
               <Notification variant="error" title="Error fetching balance" isFilled>
-                <>{fetchBalanceError}</>
+                <>{fetchBalanceError + ""}</>
               </Notification>
             ) : null}
           </>
