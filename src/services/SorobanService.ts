@@ -1,6 +1,8 @@
 import {
+  Account,
   Address,
   Contract,
+  FeeBumpTransaction,
   hash,
   Keypair,
   Operation,
@@ -188,8 +190,6 @@ export class SorobanService {
       .setNetworkPassphrase(this.networkPassphrase)
       .build();
 
-    console.log("Simulating contract call:", tx.toXDR());
-    // Simulate the transaction
     let simulationResponse = await this.rpcClient.simulateTransaction(tx);
     if (!rpc.Api.isSimulationSuccess(simulationResponse)) {
       throw new Error(`${ERRORS.TX_SIM_FAILED} (simulation 1): ${simulationResponse}`);
@@ -230,10 +230,20 @@ export class SorobanService {
     tx = preparedTransaction.build();
     tx.sign(this.sourceAccountKP);
 
+    return this.sendTransaction(tx);
+  }
+
+  public async sendTransaction(
+    tx: Transaction | FeeBumpTransaction | string,
+  ): Promise<rpc.Api.GetSuccessfulTransactionResponse> {
+    if (typeof tx === "string") {
+      tx = TransactionBuilder.fromXDR(tx, this.networkPassphrase);
+    }
+
     // Send the transaction
     const sendResponse = await this.rpcClient.sendTransaction(tx);
     if (sendResponse.errorResult) {
-      throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${sendResponse.errorResult}`);
+      throw new Error(`${ERRORS.SUBMIT_TX_FAILED}: ${JSON.stringify(sendResponse)}`);
     }
 
     // Poll for transaction status

@@ -20,7 +20,7 @@ import IconXlm from "@/assets/asset-xlm.svg?react";
 import { snakeToTitleCase } from "@/helpers/snakeToTitleCase";
 import { AuthEntrySigner } from "@/services/AuthEntrySigner";
 
-import { useBuildTransaction, useGetPayments } from "@/query/useWalletBackend";
+import { useSelfFeeBumpedTransfer, useWBFeeBumpedTransfer } from "@/query/useWalletBackend";
 
 const defaultSignerAddressId = C_ACCOUNT_ED25519_SIGNER.PUBLIC_KEY;
 const defaultSignerSigningMethod: AuthEntrySigner = AuthEntrySigner.fromKeypairSecret(
@@ -46,39 +46,20 @@ export const DemoHome = () => {
   } = useDemoStore();
 
   const {
-    data: buildTxResponse,
-    mutate: buildTx,
-    error: buildTxError,
-    // isPending: isBuildTxPending,
-    // reset: resetBuildTx,
-  } = useBuildTransaction();
+    data: selfFeeBumpedTransferResponse,
+    mutate: selfFeeBumpedTransfer,
+    error: selfFeeBumpedTransferError,
+    isPending: isSelfFeeBumpedTransferPending,
+    reset: resetSelfFeeBumpedTransfer,
+  } = useSelfFeeBumpedTransfer();
 
-  const debugWalletBackend = () => {
-    handleBuildTransfer();
-  };
-
-  useEffect(() => {
-    if (buildTxError) {
-      console.error(buildTxError);
-    }
-  }, [buildTxError]);
-
-  useEffect(() => {
-    if (buildTxResponse) {
-      console.log(buildTxResponse);
-    }
-  }, [buildTxResponse]);
-
-  const handleBuildTransfer = () => {
-    const stroopsAmount = "10000000";
-    buildTx({
-      contractId: tokenInfo!.contractId,
-      fromAccId: contractSigner!.addressId,
-      toAccId: contractSigner!.addressId,
-      amount: stroopsAmount.toString(),
-      signer: contractSigner!,
-    });
-  };
+  const {
+    data: wbFeeBumpedTransferResponse,
+    mutate: wbFeeBumpedTransfer,
+    error: wbFeeBumpedTransferError,
+    isPending: isWBFeeBumpedTransferPending,
+    reset: resetWBFeeBumpedTransfer,
+  } = useWBFeeBumpedTransfer();
 
   const {
     data: fetchBalanceResponse,
@@ -359,25 +340,42 @@ export const DemoHome = () => {
 
                 <Button
                   size="md"
-                  variant="tertiary"
+                  variant="secondary"
                   onClick={() => {
-                    setTokenInfo({
-                      contractId: TOKEN_CONTRACT.USDC,
-                      name: "USDC",
+                    const stroopsAmount = "10000000";
+                    resetSelfFeeBumpedTransfer();
+                    selfFeeBumpedTransfer({
+                      contractId: tokenInfo!.contractId,
+                      fromAccId: contractSigner!.addressId,
+                      toAccId: contractSigner!.addressId,
+                      amount: stroopsAmount.toString(),
+                      signer: contractSigner!,
                     });
                   }}
+                  isLoading={isSelfFeeBumpedTransferPending}
+                  disabled={!tokenInfo || !contractSigner || isFetchBalancePending}
                 >
-                  Set USDC Asset
+                  Local FeeBump
                 </Button>
 
                 <Button
                   size="md"
                   variant="tertiary"
                   onClick={() => {
-                    debugWalletBackend();
+                    const stroopsAmount = "10000000";
+                    resetWBFeeBumpedTransfer();
+                    wbFeeBumpedTransfer({
+                      contractId: tokenInfo!.contractId,
+                      fromAccId: contractSigner!.addressId,
+                      toAccId: contractSigner!.addressId,
+                      amount: stroopsAmount.toString(),
+                      signer: contractSigner!,
+                    });
                   }}
+                  isLoading={isWBFeeBumpedTransferPending}
+                  disabled={!tokenInfo || !contractSigner || isFetchBalancePending}
                 >
-                  Wallet-Backend
+                  WB FeeBump
                 </Button>
               </>
             }
@@ -399,8 +397,32 @@ export const DemoHome = () => {
           <>
             {fetchBalanceError ? (
               <Notification variant="error" title="Error fetching balance" isFilled>
-                <>{fetchBalanceError + ""}</>
+                <>{JSON.stringify(fetchBalanceError)}</>
               </Notification>
+            ) : null}
+          </>
+
+          <>
+            {selfFeeBumpedTransferError ? (
+              <Notification variant="error" title="Error sending Self feeBumped Transfer" isFilled>
+                <>{selfFeeBumpedTransferError + ""}</>
+              </Notification>
+            ) : null}
+
+            {selfFeeBumpedTransferResponse ? (
+              <Notification variant="success" title="Self feeBumped Transfer completed" isFilled />
+            ) : null}
+          </>
+
+          <>
+            {wbFeeBumpedTransferError ? (
+              <Notification variant="error" title="Error sending WB feeBumped Transfer" isFilled>
+                <>{JSON.stringify(wbFeeBumpedTransferError)}</>
+              </Notification>
+            ) : null}
+
+            {wbFeeBumpedTransferResponse ? (
+              <Notification variant="success" title="WB feeBumped Transfer completed" isFilled />
             ) : null}
           </>
         </Box>

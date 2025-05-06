@@ -2,8 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 
 import { WalletBackendService } from "@/services/WalletBackendService";
 import { ScConvert } from "@/helpers/ScConvert";
-import { ContractSigner } from "@/types/types";
-import { Networks, Transaction, TransactionBuilder, xdr, XdrLargeInt } from "@stellar/stellar-sdk";
+import { ContractSigner, NewSimulationResponse } from "@/types/types";
+import { rpc, TransactionBuilder, xdr, XdrLargeInt } from "@stellar/stellar-sdk";
 import { SorobanService } from "@/services/SorobanService";
 
 export const useGetPayments = () => {
@@ -25,8 +25,8 @@ type TokenTransferProps = {
   signer?: ContractSigner;
 };
 
-export const useBuildTransaction = () => {
-  const mutation = useMutation<any, Error, TokenTransferProps>({
+export const useWBFeeBumpedTransfer = () => {
+  const mutation = useMutation<rpc.Api.GetSuccessfulTransactionResponse, Error, TokenTransferProps>({
     mutationFn: async ({ contractId, fromAccId, toAccId, amount, signer }) => {
       const scFrom = ScConvert.accountIdToScVal(fromAccId);
       const scTo = ScConvert.accountIdToScVal(toAccId);
@@ -38,12 +38,15 @@ export const useBuildTransaction = () => {
       }
 
       const ss = new SorobanService();
-      let { tx } = await ss.simulateContract({
+      let { tx, simulationResponse } = await ss.simulateContract({
         contractId,
         method: "transfer",
         args: [scFrom, scTo, scAmount],
         signers,
       });
+
+      const preparedTransaction = rpc.assembleTransaction(tx, simulationResponse);
+      tx = preparedTransaction.build();
 
       const transactionEnvelope = xdr.TransactionEnvelope.fromXDR(tx.toXDR(), "base64");
       const operationXDRs = transactionEnvelope
@@ -53,11 +56,73 @@ export const useBuildTransaction = () => {
         .map((op) => op.toXDR("base64")); // Convert each operation to XDR
 
       const wbs = WalletBackendService.getInstance();
-      const now = Math.floor(Date.now() / 1000); // Current time in Unix timestamp
-      const oneMonthInSeconds = 30 * 24 * 60 * 60; // Approximate one month in seconds
-      const timebounds = now + oneMonthInSeconds;
+      const timeout = 30; // seconds
 
-      return wbs.buildTransaction({ transactions: [{ operations: operationXDRs, timebounds }] });
+      const buildTxResponse = await wbs.buildTransaction({
+        transactions: [
+          { operations: operationXDRs, timeout, simulationResult: NewSimulationResponse(simulationResponse) },
+        ],
+      });
+      const feeBumpedTxResponse = await wbs.createFeeBumpTransaction(buildTxResponse.transactionXdrs[0]);
+      console.warn("feeBumpedTxResponse: ", feeBumpedTxResponse.transaction);
+      const rpcTxResponse = await ss.sendTransaction(feeBumpedTxResponse.transaction);
+
+      return rpcTxResponse;
+    },
+  });
+
+  return mutation;
+};
+
+export const useSelfFeeBumpedTransfer = () => {
+  const mutation = useMutation<rpc.Api.GetSuccessfulTransactionResponse, Error, TokenTransferProps>({
+    mutationFn: async ({ contractId, fromAccId, toAccId, amount, signer }) => {
+      const scFrom = ScConvert.accountIdToScVal(fromAccId);
+      const scTo = ScConvert.accountIdToScVal(toAccId);
+      const scAmount = new XdrLargeInt("i128", amount).toScVal();
+
+      let signers: ContractSigner[] = [];
+      if (signer) {
+        signers.push(signer);
+      }
+
+      const ss = new SorobanService();
+      let { tx, simulationResponse } = await ss.simulateContract({
+        contractId,
+        method: "transfer",
+        args: [scFrom, scTo, scAmount],
+        signers,
+      });
+      tx.sign(ss.sourceAccountKP);
+
+      // option1: manual
+      const sorobanData = simulationResponse.transactionData.build();
+      const preparedTransaction = TransactionBuilder.cloneFrom(tx, {
+        fee: sorobanData.resourceFee().toString(), // NOTE inner tx fee cannot be less than the resource fee or the tx will be invalid
+        sorobanData: sorobanData,
+      });
+
+      // option2: SDK method
+      // const preparedTransaction = rpc.assembleTransaction(tx, simulationResponse);
+
+      tx = preparedTransaction.build();
+      tx.sign(ss.sourceAccountKP);
+
+      const feeBumpFee = BigInt(tx.fee) * BigInt(3);
+
+      const feeBumpTx = TransactionBuilder.buildFeeBumpTransaction(
+        ss.sourceAccountKP,
+        feeBumpFee.toString(),
+        tx,
+        ss.networkPassphrase,
+      );
+      feeBumpTx.sign(ss.sourceAccountKP);
+
+      console.warn("feeBumpTx: ", feeBumpTx.toXDR());
+
+      const txResponse = await ss.sendTransaction(feeBumpTx);
+
+      return txResponse;
     },
   });
 

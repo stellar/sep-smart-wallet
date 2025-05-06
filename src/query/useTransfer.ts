@@ -1,4 +1,4 @@
-import { XdrLargeInt } from "@stellar/stellar-sdk";
+import { rpc, XdrLargeInt } from "@stellar/stellar-sdk";
 import { useMutation } from "@tanstack/react-query";
 
 import { ScConvert } from "@/helpers/ScConvert";
@@ -39,6 +39,52 @@ export const useTransfer = () => {
         contractId,
         method: "balance",
         args: [ScConvert.accountIdToScVal(fromAccId)],
+      });
+
+      return ScConvert.scValToBigInt(balanceSimulation.result!.retval);
+    },
+  });
+
+  return mutation;
+};
+
+type SelfTransferProps = {
+  contractId: string;
+  fromToAccId: string;
+  amount: string;
+  signer?: ContractSigner;
+};
+
+export const useSelfTransfer = () => {
+  const mutation = useMutation<bigint, Error, SelfTransferProps>({
+    mutationFn: async ({ contractId, fromToAccId, amount, signer }: SelfTransferProps) => {
+      const scFromTo = ScConvert.accountIdToScVal(fromToAccId);
+      const scAmount = new XdrLargeInt("i128", amount).toScVal();
+
+      let signers: ContractSigner[] = [];
+      if (signer) {
+        signers.push(signer);
+      }
+
+      const ss = new SorobanService();
+      let { tx, simulationResponse: transferSimulation } = await ss.simulateContract({
+        contractId,
+        method: "transfer",
+        args: [scFromTo, scFromTo, scAmount],
+        signers,
+      });
+
+      // Assemble, build and sign the transaction
+      const preparedTransaction = rpc.assembleTransaction(tx, transferSimulation);
+      tx = preparedTransaction.build();
+      tx.sign(ss.sourceAccountKP);
+
+      await ss.sendTransaction(tx);
+
+      const { simulationResponse: balanceSimulation } = await ss.simulateContract({
+        contractId,
+        method: "balance",
+        args: [ScConvert.accountIdToScVal(fromToAccId)],
       });
 
       return ScConvert.scValToBigInt(balanceSimulation.result!.retval);

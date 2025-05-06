@@ -1,8 +1,8 @@
-import { BuildTransactionsRequest, BuildTransactionsResponse } from "@/types/types";
+import { BuildTransactionsRequest, BuildTransactionsResponse, TransactionEnvelopeResponse } from "@/types/types";
 import { Keypair } from "@stellar/stellar-sdk";
 import { Buffer } from "buffer";
 
-const WALLET_BACKEND_SECRET = "SALLK7FWPRLASQ6747CH6ULRRUG5SYNH5FZ6BBOMXQXSNTNUQA5HVDO5";
+const WALLET_BACKEND_SECRET = "SBLIQC4PO4OJDNAUGJJL23H7HWME4VCW4PFAPIJ6SI4HHEYKJ2QO32HN";
 const WALLET_BACKEND_DOMAIN = "http://localhost:8001";
 
 export class WalletBackendService {
@@ -29,6 +29,7 @@ export class WalletBackendService {
     const nowUnix = Math.floor(now.getTime() / 1000);
 
     // build payload
+    // const walletBackendHostname = "api";
     const walletBackendHostname = new URL(this.domain).hostname;
     const payload = `${nowUnix}.${walletBackendHostname}.${reqBody ?? ""}`;
 
@@ -73,5 +74,15 @@ export class WalletBackendService {
    */
   async buildTransaction(transactions: BuildTransactionsRequest): Promise<BuildTransactionsResponse> {
     return this.request("/tss/transactions/build", "POST", transactions);
+  }
+
+  /**
+   * Creates a fee bump transaction.
+   *
+   * @param transactionXDR - The base64 encoded XDR transaction.
+   * @returns A promise that resolves to the fee bump transaction in XDR format.
+   */
+  async createFeeBumpTransaction(transactionXDR: string): Promise<TransactionEnvelopeResponse> {
+    return this.request("/tx/create-fee-bump", "POST", { transaction: transactionXDR });
   }
 }
